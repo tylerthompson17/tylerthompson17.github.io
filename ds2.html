@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flight Etiquette Data Visualization - Tyler Thompson</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --cream: #F5F2EC;
+    --warm-white: #FAFAF7;
+    --ink: #1A1A18;
+    --ink-muted: #6B6B65;
+    --ink-faint: #B0AFA8;
+    --accent: #8B6F47;
+    --accent-light: #C4A882;
+    --border: rgba(26,26,24,0.10);
+    --serif: 'Instrument Serif', Georgia, serif;
+    --sans: 'DM Sans', system-ui, sans-serif;
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--warm-white); color: var(--ink); font-family: var(--sans); font-weight: 300; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 3rem; background: rgba(250,250,247,0.88); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+  .nav-name { font-family: var(--serif); font-size: 1.1rem; color: var(--ink); text-decoration: none; }
+  .nav-back { font-size: 0.8rem; font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted); text-decoration: none; transition: color 0.2s; }
+  .nav-back:hover { color: var(--ink); }
+  .hero { padding: 9rem 3rem 4rem; max-width: 800px; margin: 0 auto; }
+  .hero-label { font-size: 0.75rem; font-weight: 400; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 1.25rem; }
+  .hero h1 { font-family: var(--serif); font-size: clamp(2.5rem, 5vw, 4rem); line-height: 1.05; margin-bottom: 1.25rem; }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .hero-meta { font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 2rem; }
+  .hero-desc { font-size: 1.05rem; color: var(--ink-muted); line-height: 1.8; border-left: 2px solid var(--accent-light); padding-left: 1.25rem; }
+  .demo-bar { background: var(--cream); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 1.25rem 3rem; }
+  .demo-bar-inner { max-width: 720px; margin: 0 auto; display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; }
+  .demo-label { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); }
+  .demo-link { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; font-weight: 400; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); text-decoration: none; border: 1px solid var(--border); padding: 0.5rem 1rem; transition: background 0.2s, border-color 0.2s; }
+  .demo-link:hover { background: var(--ink); color: var(--warm-white); border-color: var(--ink); }
+  article { max-width: 720px; margin: 0 auto; padding: 4rem 3rem 6rem; }
+  article h2 { font-family: var(--serif); font-size: 1.75rem; line-height: 1.15; color: var(--ink); margin: 3rem 0 1rem; }
+  article h3 { font-family: var(--serif); font-size: 1.3rem; color: var(--ink); margin: 2.5rem 0 0.75rem; }
+  article h4 { font-family: var(--sans); font-size: 0.85rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); margin: 2rem 0 0.5rem; }
+  article p { font-size: 1rem; color: var(--ink-muted); line-height: 1.85; margin-bottom: 1.25rem; }
+  article ul { margin: 0 0 1.25rem 1.25rem; }
+  article ul li { font-size: 1rem; color: var(--ink-muted); line-height: 1.75; margin-bottom: 0.5rem; }
+  article strong { color: var(--ink); font-weight: 500; }
+  article em { font-style: italic; }
+  article a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+  .section-divider { border: none; border-top: 1px solid var(--border); margin: 3rem 0; }
+  .tag-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 3rem; }
+  .tag { font-size: 0.68rem; font-weight: 400; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent-light); padding: 0.3rem 0.7rem; }
+  .article-img { width: 100%; margin: 1.5rem 0; border: 1px solid var(--border); }
+  .article-img img { width: 100%; height: auto; display: block; }
+  .video-wrap { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; margin: 1.5rem 0; }
+  .video-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+  @media (max-width: 768px) { nav { padding: 1rem 1.5rem; } .hero, article { padding-left: 1.5rem; padding-right: 1.5rem; } .demo-bar { padding: 1rem 1.5rem; } }
+
+  body { cursor: none; }
+  a, button { cursor: none; }
+  .cursor-dot {
+    position: fixed;
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--accent-light);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s, height 0.2s, border-color 0.2s;
+  }
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+<div class="cursor-dot" id="cursor-dot"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<nav>
+  <a href="index.html" class="nav-name">Tyler Thompson</a>
+  <a href="index.html#projects" class="nav-back">&larr; Back to projects</a>
+</nav>
+
+<div class="hero reveal">
+  <p class="hero-label">HCI Design Sprint 2 - Fall 2025</p>
+  <h1>Visualizing Flight <em>Etiquette</em></h1>
+  <p class="hero-meta">Daniel Carter, Ellora Devulapally, Blake Roper, Tyler Thompson - Davidson College</p>
+  <p class="hero-desc">Analytical and persuasive data visualizations exploring how Americans across different regions perceive rudeness - built using the Five Design Sheets methodology.</p>
+</div>
+
+<div class="demo-bar">
+  <div class="demo-bar-inner">
+    <span class="demo-label">Live demos</span>
+    <a class="demo-link" href="https://ellloraa.github.io/FDS-DS2/" target="_blank">Persuasive Visualizations &rarr;</a>
+    <a class="demo-link" href="https://vfl-050.engage.sas.com/SASVisualAnalytics/?reportUri=%2Freports%2Freports%2Fe27bb49d-7953-48e9-8492-feaa818d7e62&sso_guest=true&sas-welcome=false" target="_blank">Analytical Visualizations &rarr;</a>
+  </div>
+</div>
+
+<article class="reveal">
+  <div class="tag-row">
+    <span class="tag">D3.js</span>
+    <span class="tag">SAS Visual Analytics</span>
+    <span class="tag">Data Visualization</span>
+    <span class="tag">Five Design Sheets</span>
+    <span class="tag">FiveThirtyEight Dataset</span>
+  </div>
+
+  <h2>Introduction</h2>
+  <p>In an increasingly data-driven world, it's more crucial than ever for individuals to be able to comprehend datasets. Data visualizations serve different purposes - analytical visualizations aim to provide clear and unbiased insights, while persuasive visualizations are designed to resonate with audiences and weave a compelling narrative.</p>
+
+  <h2>The Data</h2>
+  <p>We worked with a FiveThirtyEight flight etiquette dataset covering respondents' views on in-flight behaviors - armrest use, reclining seats, bringing kids on flights - alongside demographic data including age, sex, income, education, and census region. The data was cleaned by removing any responses with blanks, and future-looking features were dropped to prevent data leakage.</p>
+
+  <hr class="section-divider">
+
+  <h2>Analytical Visualizations</h2>
+  <p>We used the Five Design Sheets (FdS) methodology to ideate and refine our analytical designs across five sheets.</p>
+
+  <h3>Design Sheet #1: Ideation</h3>
+  <div class="article-img"><img src="https://tylerthompson.dcreate.domains/wp-content/uploads/2025/12/image-23-754x1024.png" alt="Design sheet 1 ideation sketches"></div>
+  <div class="article-img"><img src="https://tylerthompson.dcreate.domains/wp-content/uploads/2025/12/image-24-632x1024.png" alt="Design sheet 1 continued"></div>
+  <div class="article-img"><img src="https://tylerthompson.dcreate.domains/wp-content/uploads/2025/12/image-25-757x1024.png" alt="Design sheet 1 continued"></div>
+  <p>We sketched bar charts, scatterplots, cartograms, and parallel coordinates to brainstorm the best way to depict demographics, preferences, and perceptions of rudeness. Three key ideas emerged: color-coded bar charts, parallel coordinates for demographics, and demographic filters for interactivity.</p>
+
+  <h3>Design Sheet #2: Parallel Coordinates</h3>
+  <div class="article-img"><img src="https://tylerthompson.dcreate.domains/wp-content/uploads/2025/12/image-26-865x1024.png" alt="Design sheet 2 parallel coordinates"></div>
+  <p><strong>Task:</strong> Overview of respondents' demographics. Each parallel axis corresponds to a demographic type - gender, height, education. Line thickness indicates the number of respondents matching that profile, making trends immediately visible.</p>
+
+  <h3>Design Sheet #3: Bar Charts &amp; Gauges</h3>
+  <div class="article-img"><img src="https://tylerthompson.dcreate.domains/wp-content/uploads/2025/12/image-27-748x1024.png" alt="Design sheet 3 bar charts"></div>
+  <p><strong>Task:</strong> Compare rudeness response types by question. Color-coded bars with demographic filters, complemented by a gauge visualization that gives an immediate read on how rude a given action is.</p>
+
+  <h3>Design Sheet #4: Pie Charts</h3>
+  <div class="article-img"><img src="https://tylerthompson.dcreate.domains/wp-content/uploads/2025/12/image-28-773x1024.png" alt="Design sheet 4 pie charts"></div>
+  <p><strong>Task:</strong> Highlight respondents' preferences. Pie charts were chosen over bar charts because preference questions had more potential answers. Segments are labeled in percentages with a collapsible legend and demographic filters.</p>
+
+  <h3>Design Sheet #5: Final Integration</h3>
+  <div class="article-img"><img src="https://tylerthompson.dcreate.domains/wp-content/uploads/2025/12/image-29-765x1024.png" alt="Design sheet 5 final integration"></div>
+  <p>Finalized designs stayed largely consistent with sheets two through four. The key change was replacing a single demographic dropdown with multiple filters at the top of each page, allowing viewers to control for multiple demographics simultaneously.</p>
+
+  <hr class="section-divider">
+
+  <h2>Analysis Visualization #1 - Parallel Coordinates</h2>
+  <div class="article-img"><img src="https://tylerthompson.dcreate.domains/wp-content/uploads/2025/12/image-30-1024x495.png" alt="Parallel coordinates visualization"></div>
+  <p>Each axis maps a demographic category. Line thickness encodes respondent count per demographic profile, making trends immediately visible across the full dataset.</p>
+  <h4>Feedback &amp; Reflection</h4>
+  <p>Future improvements include adding tooltips, ensuring consistent subset ordering across axes, and increasing interactivity for viewers.</p>
+
+  <h2>Analysis Visualization #2 - Bar Charts of Perceived Rudeness</h2>
+  <div class="article-img"><img src="https://tylerthompson.dcreate.domains/wp-content/uploads/2025/12/image-31-1024x496.png" alt="Bar charts visualization"></div>
+  <div class="article-img"><img src="https://tylerthompson.dcreate.domains/wp-content/uploads/2025/12/image-32-1024x523.png" alt="Bar charts with filters"></div>
+  <p>Color-coded response breakdowns for each rudeness question, with multiple demographic filters that can be applied simultaneously for granular cross-demographic comparison.</p>
+  <h4>Feedback &amp; Reflection</h4>
+  <p>Classmates flagged that expanding a bar chart distorted the message - bar area rather than length became the visual signal. Future fix: reduce expanded bar height to maintain length as the primary encoding.</p>
+
+  <h2>Analysis Visualization #3 - Rudeness Gauges</h2>
+  <div class="article-img"><img src="https://tylerthompson.dcreate.domains/wp-content/uploads/2025/12/image-33-1024x480.png" alt="Rudeness gauges visualization"></div>
+  <p>Each gauge maps an average rudeness score to three ranges: not rude (0–0.33), somewhat rude (0.33–0.66), and very rude (0.66–1). The indicator and arc color communicate the range at a glance.</p>
+
+  <h2>Analysis Visualization #4 - Pie Charts of Preferences</h2>
+  <div class="article-img"><img src="https://tylerthompson.dcreate.domains/wp-content/uploads/2025/12/image-34-1024x446.png" alt="Pie charts of preferences"></div>
+  <p>Preference questions displayed as filterable pie charts. Chosen over bar charts given the higher number of response options per question.</p>
+
+  <hr class="section-divider">
+
+  <h2>Persuasive Visualizations</h2>
+  <p>The persuasive suite argues a single thesis: rudeness is not a fixed standard but a culturally negotiated concept shaped by regional norms. Three visualizations tell the story in sequence.</p>
+
+  <h3>Design Sheet #1: Ideation</h3>
+  <div class="article-img"><img src="https://tylerthompson.dcreate.domains/wp-content/uploads/2025/12/image-35-1024x791.png" alt="Persuasion ideation sheet"></div>
+  <p>Purely exploratory - heat maps, bar charts, scatter plots, and interactive dashboards were all considered. Three directions stood out: a choropleth map, a diverging bar chart, and a scatter plot.</p>
+
+  <h3>Design Sheet #2: Choropleth Map</h3>
+  <div class="article-img"><img src="https://tylerthompson.dcreate.domains/wp-content/uploads/2025/12/image-36-789x1024.png" alt="Choropleth design sheet"></div>
+  <p>A US map where color intensity reflects average perceived rudeness per region. Static global color bins ensure fair cross-behavior comparison - the entry point for the persuasive argument.</p>
+
+  <h3>Design Sheet #3: Diverging Bar Chart</h3>
+  <div class="article-img"><img src="https://tylerthompson.dcreate.domains/wp-content/uploads/2025/12/image-37-780x1024.png" alt="Diverging bar chart design sheet"></div>
+  <p>Bars split around a neutral midpoint showing % "not rude" left and % "rude" right per region. Colorblind-safe palette, normalized percentages, and white bar labels for readability.</p>
+
+  <h3>Design Sheet #4: Scatter Plot</h3>
+  <div class="article-img"><img src="https://tylerthompson.dcreate.domains/wp-content/uploads/2025/12/image-38-808x1024.png" alt="Scatter plot design sheet"></div>
+  <p>Each region plotted by overall rudeness score vs. share of "very rude" responses. Dot size encodes respondent count. Quadrant labels (Easily Offended, Indifferent, etc.) make the argument explicit.</p>
+
+  <h3>Design Sheet #5: Final Integration</h3>
+  <div class="article-img"><img src="https://tylerthompson.dcreate.domains/wp-content/uploads/2025/12/image-39-816x1024.png" alt="Final integration design sheet"></div>
+  <p>Each visualization occupies its own page, guiding the audience through a sequential narrative: where differences occur → how strong they are → why they exist.</p>
+
+  <hr class="section-divider">
+
+  <h2>Persuasion Visualization #1 - Regional Rudeness Map</h2>
+  <div class="article-img"><img src="https://tylerthompson.dcreate.domains/wp-content/uploads/2025/12/image-40-1024x537.png" alt="Choropleth map of perceived rudeness"></div>
+  <p>Color intensity reflects average perceived rudeness per census region. Dropdown selects the behavior; hover reveals state-level detail. Darker = higher sensitivity to rudeness.</p>
+  <h4>Changes from Sketches</h4>
+  <p>Switched from per-question tertile bins to global static bins so comparisons across behaviors are fair. Darkened the lightest color for accessibility.</p>
+
+  <h2>Persuasion Visualization #2 - Diverging Bar Chart</h2>
+  <div class="article-img"><img src="https://tylerthompson.dcreate.domains/wp-content/uploads/2025/12/image-41-1024x616.png" alt="Diverging bar chart of regional rudeness"></div>
+  <p>Bars split at a neutral midpoint - % "not rude" left, % "rude" right - making polarization immediately readable across regions. Some actions show near-consensus; others reveal sharp cultural divides.</p>
+
+  <h2>Persuasion Visualization #3 - Regional Scatter Plot</h2>
+  <div class="article-img"><img src="https://tylerthompson.dcreate.domains/wp-content/uploads/2025/12/image-42-1024x704.png" alt="Scatter plot of regional rudeness patterns"></div>
+  <p>Regions plotted by overall rudeness score vs. share of "very rude" responses. Quadrant labels make the conclusion explicit: regional patterns are consistent and culturally meaningful, not random.</p>
+
+  <hr class="section-divider">
+
+  <h2>Demo Video</h2>
+  <div class="video-wrap">
+    <iframe src="https://www.youtube.com/embed/XyBHEmy96Pg" allowfullscreen></iframe>
+  </div>
+  <p>The video demonstrates how persuasive and analytical visualizations serve different purposes - analytical views invite free exploration, while persuasive views guide interpretation toward a specific conclusion.</p>
+
+  <h2>Key Insight</h2>
+  <p>Politeness standards aren't universal - they're shaped by regional expectations and shared social values. By structuring the persuasive visualizations as a sequential narrative (where, how strong, why), viewers are guided to a conclusion rather than left to find it themselves.</p>
+
+</article>
+<script>
+const dot = document.getElementById('cursor-dot');
+const ring = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  dot.style.left = mx + 'px';
+  dot.style.top = my + 'px';
+});
+function animateCursor() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px';
+  ring.style.top = ry + 'px';
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+document.querySelectorAll('a, button').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    ring.style.width = '44px'; ring.style.height = '44px';
+    ring.style.background = 'rgba(139,111,71,0.12)';
+    ring.style.borderColor = 'var(--accent)';
+    dot.style.width = '10px'; dot.style.height = '10px';
+  });
+  el.addEventListener('mouseleave', () => {
+    ring.style.width = '28px'; ring.style.height = '28px';
+    ring.style.background = 'transparent';
+    ring.style.borderColor = 'var(--accent-light)';
+    dot.style.width = '6px'; dot.style.height = '6px';
+  });
+});
+const revealEls = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('visible'), i * 60);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.08 });
+revealEls.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
