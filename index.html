@@ -417,6 +417,15 @@
     line-height: 1.7;
   }
 
+  .exp-body p a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border);
+    transition: border-color 0.3s ease;
+  }
+
+  .exp-body p a:hover { border-bottom-color: var(--accent); }
+
   /* CONTACT */
   .contact {
     text-align: center;
@@ -619,7 +628,7 @@
     <div class="about-text">
       <p>I&rsquo;m a sophomore at Davidson College studying Computer Science and Mathematics (GPA: 3.83). I&rsquo;m interested in machine learning, computer vision, and building software that solves real problems.</p>
       <p>This past summer I studied machine learning in practice at the London School of Economics, where I built and evaluated models across regression and clustering tasks. I also compete as a Division I sprinter, which has taught me a lot about discipline and how to perform under pressure.</p>
-      <p>Currently building digital infrastructure for an American industrial e-commerce startup, and actively exploring opportunities in AI and software development.</p>
+      <p>This past summer I built digital infrastructure for an American industrial e-commerce startup and shipped a RAG-based AI assistant for a national trade association. I&rsquo;m now grading differential equations for the Davidson math department and actively exploring opportunities in AI and software development.</p>
     </div>
     <div>
       <div class="skills-list">
@@ -637,8 +646,21 @@
   <h2 class="section-title">Projects</h2>
   <div class="projects-grid">
 
-    <a class="project-card" href="https://github.com/tylerthompson17/Image-Processing-Blackjack-Card-Counting-Project-Public" target="_blank">
+    <a class="project-card" href="https://askhmma.naamm.org" target="_blank">
       <div class="project-num">01</div>
+      <h3>HMMA Direct</h3>
+      <p>RAG-based AI assistant for the National Association of Architectural Metal Manufacturers&rsquo; technical library. Built the full ingestion pipeline - document chunking, Voyage AI embeddings, Supabase/pgvector retrieval - plus a Next.js front end on Vercel, hallucination-prevention safeguards, and a lead-capture flow. Sold under a signed MSA and delivered in production.</p>
+      <div class="project-tags">
+        <span class="project-tag">Next.js</span>
+        <span class="project-tag">RAG</span>
+        <span class="project-tag">Supabase/pgvector</span>
+        <span class="project-tag">Voyage AI</span>
+      </div>
+      <div class="project-arrow">&#8599;</div>
+    </a>
+
+    <a class="project-card" href="https://github.com/tylerthompson17/Image-Processing-Blackjack-Card-Counting-Project-Public" target="_blank">
+      <div class="project-num">02</div>
       <h3>Blackjack Card Detection System</h3>
       <p>Full image processing pipeline to detect and classify playing cards using Canny edge detection, contour detection, and perspective transforms. Includes a Hi-Lo card counting algorithm for optimal player decisions. Presented at departmental symposium.</p>
       <div class="project-tags">
@@ -651,7 +673,7 @@
     </a>
 
     <a class="project-card" href="https://github.com/tylerthompson17/ml-stock-market-analysis" target="_blank">
-      <div class="project-num">02</div>
+      <div class="project-num">03</div>
       <h3>ML Stock Market Analysis</h3>
       <p>Built and evaluated 7 machine learning models on 750 Dow Jones observations. Applied hyperparameter tuning with grid search and cross-validation. Used Hierarchical, K-Means, and Gaussian Mixture clustering to group stocks by volatility and dividend behavior.</p>
       <div class="project-tags">
@@ -664,7 +686,7 @@
     </a>
 
     <a class="project-card" href="ds3.html">
-      <div class="project-num">03</div>
+      <div class="project-num">04</div>
       <h3>Solar System Explorer</h3>
       <p>VR game built in A-Frame where players navigate the solar system to find a lost alien dog. Features orbiting planets, proximity-based spatial audio, and mobile/PC versions demoed live with Google Cardboard.</p>
       <div class="project-tags">
@@ -677,7 +699,7 @@
     </a>
 
     <a class="project-card" href="ds2.html">
-      <div class="project-num">04</div>
+      <div class="project-num">05</div>
       <h3>Flight Etiquette Data Viz</h3>
       <p>Analytical and persuasive visualizations of a FiveThirtyEight flight etiquette dataset - choropleth maps, diverging bar charts, and scatter plots arguing that perceptions of rudeness are culturally constructed and geographically distributed.</p>
       <div class="project-tags">
@@ -699,11 +721,29 @@
   <div class="exp-list">
 
     <div class="exp-item">
-      <div class="exp-date">2026 - Present</div>
+      <div class="exp-date">Aug 2026 - Present</div>
+      <div class="exp-body">
+        <h4>Davidson College, Mathematics Department</h4>
+        <div class="exp-role">Math Grader, MAT 235 (Differential Equations) &middot; Davidson, NC</div>
+        <p>Selected on faculty recommendation to grade problem sets and provide feedback for a differential equations course (10 hours/week).</p>
+      </div>
+    </div>
+
+    <div class="exp-item">
+      <div class="exp-date">Summer 2026</div>
+      <div class="exp-body">
+        <h4>National Association of Architectural Metal Manufacturers (HMMA Direct)</h4>
+        <div class="exp-role">Independent Contractor &middot; Remote</div>
+        <p>Designed and built HMMA Direct, a RAG-based AI assistant for NAAMM&rsquo;s technical library (<a href="https://askhmma.naamm.org" target="_blank" rel="noopener">askhmma.naamm.org</a>). Built the RAG pipeline - document ingestion, chunking, Voyage AI embeddings, Supabase/pgvector - and the Next.js app on Vercel. Implemented hallucination-prevention safeguards, a lead-capture flow, and end-to-end DNS/SSL/domain configuration. Sold and delivered under a signed MSA ($7,000 build fee plus $300/month); negotiated technical handover at close.</p>
+      </div>
+    </div>
+
+    <div class="exp-item">
+      <div class="exp-date">Summer 2026</div>
       <div class="exp-body">
         <h4>American Industrial Solutions</h4>
-        <div class="exp-role">Digital Infrastructure Lead</div>
-        <p>Architected a full B2B e-commerce storefront on Shopify for a US stainless steel manufacturer. Built a custom Liquid theme, automated order routing via Mechanic, and established SEO infrastructure with structured data markup.</p>
+        <div class="exp-role">Digital Infrastructure Intern &middot; Remote</div>
+        <p>Architected a B2B e-commerce storefront on Shopify for a US stainless steel manufacturer and built a custom Liquid theme. Structured a 14-SKU catalog, built automated order routing via Mechanic, configured Klaviyo flows, and set up SEO infrastructure. Met with prospective clients in Little Rock, AR to scope and architect e-commerce solutions for their businesses.</p>
       </div>
     </div>
 
