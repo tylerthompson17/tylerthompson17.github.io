@@ -100,7 +100,7 @@
   .hero-top {
     display: grid; grid-template-columns: 1fr auto;
     gap: 2rem; align-items: center;
-    margin-bottom: 2.5rem;
+    margin-bottom: 2.25rem;
   }
   .hero-comment { color: var(--muted); font-size: 0.8rem; margin-bottom: 1.25rem; }
   .hero h1 {
@@ -119,23 +119,27 @@
   .hero-sub { color: var(--muted); max-width: 520px; margin-bottom: 1.75rem; }
   .hero-sub b { color: var(--fg); font-weight: 400; }
 
-  /* ASCII TORUS */
-  .torus { margin: 0; text-align: center; cursor: crosshair; user-select: none; }
-  .torus pre {
+  /* ASCII SCENE */
+  .scene { margin: 0; width: max-content; user-select: none; }
+  .scene pre {
     font-family: var(--mono);
     font-size: 10px; line-height: 10px; letter-spacing: 0;
     color: var(--faint);
-    min-height: 260px;
+    width: 52ch; height: 260px;
+    cursor: crosshair;
   }
-  .torus pre b { font-weight: 400; color: var(--muted); }
-  .torus pre i { font-style: normal; color: var(--fg); }
-  .torus pre u { text-decoration: none; color: var(--accent); }
-  .torus figcaption {
-    display: flex; justify-content: space-between; gap: 1rem;
-    font-size: 0.68rem; color: var(--muted);
+  .scene pre b { font-weight: 400; color: var(--muted); }
+  .scene pre i { font-style: normal; color: var(--fg); }
+  .scene pre u { text-decoration: none; color: var(--accent); }
+  .scene figcaption {
     border-top: 1px solid var(--rule); padding-top: 0.4rem; margin-top: 0.4rem;
+    font-size: 0.68rem; color: var(--muted); line-height: 1.6;
   }
-  .torus figcaption span:first-child { color: var(--accent); }
+  .scene .cap-top { display: flex; justify-content: space-between; gap: 1rem; }
+  .scene #cap-tag { color: var(--accent); }
+  .scene #cap-link { color: var(--fg); text-decoration: none; }
+  .scene #cap-link:hover { color: var(--accent); }
+  .scene #cap-read { color: var(--muted); white-space: pre; min-height: 1.6em; }
 
   /* EDITOR */
   .editor {
@@ -145,12 +149,21 @@
     line-height: 1.65;
   }
   .editor-tabs {
-    display: flex; justify-content: space-between;
+    display: flex; overflow-x: auto; scrollbar-width: none;
     border-bottom: 1px solid var(--rule);
     font-size: 0.72rem; color: var(--muted);
   }
-  .editor-tabs span { padding: 0.45rem 0.9rem; }
-  .editor-tabs .tab-active { color: var(--fg); border-right: 1px solid var(--rule); background: var(--bg); }
+  .editor-tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    font: inherit; color: var(--muted); background: none; border: 0;
+    border-right: 1px solid var(--rule);
+    padding: 0.45rem 0.85rem; white-space: nowrap; cursor: pointer;
+    transition: color 0.15s;
+  }
+  .tab .ix { color: var(--faint); margin-right: 0.45rem; }
+  .tab:hover { color: var(--fg); }
+  .tab.active { color: var(--fg); background: var(--bg); box-shadow: inset 0 2px 0 var(--accent); }
+  .tab.active .ix { color: var(--accent); }
   .editor-body { padding: 0.9rem 0; overflow-x: auto; min-height: calc(13 * 1.65em + 1.8rem); }
   .ln { display: flex; white-space: pre; }
   .ln .n { width: 3.5rem; flex: none; text-align: right; padding-right: 1.25rem; color: var(--faint); user-select: none; }
@@ -176,17 +189,7 @@
   }
   .statusline .grow { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .statusline .pos { padding-right: 0.9rem; }
-  .cmdline { font-size: 0.72rem; color: var(--muted); padding: 0.2rem 0.6rem; min-height: 1.9em; white-space: pre; }
-
-  /* ASCII KEYBOARD */
-  .keyboard {
-    display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
-    margin-top: 1.1rem; font-size: 0.72rem; color: var(--faint); user-select: none;
-  }
-  .kb-row { display: flex; gap: 0.95rem; }
-  .kb-row span { display: inline-block; min-width: 1ch; text-align: center; transition: color 0.5s, transform 0.5s, text-shadow 0.5s; }
-  .kb-row span.hit { color: var(--accent); transform: translateY(-3px); text-shadow: 0 0 10px var(--accent); transition: none; }
-  .kb-row .space { letter-spacing: 0.1em; }
+  .cmdline { font-size: 0.72rem; color: var(--muted); padding: 0.2rem 0.6rem; min-height: 1.9em; white-space: pre; overflow: hidden; }
 
   .hero-actions { display: flex; gap: 0.9rem; flex-wrap: wrap; }
   .btn {
@@ -341,8 +344,7 @@
 
   @media (max-width: 900px) {
     .hero-top { grid-template-columns: 1fr; }
-    .hero-side { justify-self: center; }
-    .keyboard { display: none; }
+    .scene { justify-self: center; }
   }
   @media (max-width: 820px) {
     .wrap { padding: 0 1rem; }
@@ -350,7 +352,7 @@
     .nav-links a::before { content: ''; }
     .hero { padding: 2.5rem 0 3rem; }
     .hero h1 { white-space: normal; }
-    .torus pre { font-size: 7px; line-height: 7px; min-height: 182px; }
+    .scene pre { font-size: 7px; line-height: 7px; height: 182px; }
     .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
     .projects-grid { grid-template-columns: 1fr; }
     .editor { font-size: 0.72rem; }
@@ -394,25 +396,23 @@
           <a href="mailto:tythompson@davidson.edu" class="btn">email &nearr;</a>
         </div>
       </div>
-      <div class="hero-side">
-        <figure class="torus" id="torus-fig" aria-hidden="true" title="click to spin">
-          <pre id="torus"></pre>
-          <figcaption><span>['torus']</span><span id="torus-angles">&theta; 0.0000 &nbsp;&phi; 0.0000</span></figcaption>
-        </figure>
-        <div class="keyboard" id="keyboard" aria-hidden="true"></div>
-      </div>
+      <figure class="scene">
+        <pre id="scene" aria-hidden="true"></pre>
+        <figcaption>
+          <div class="cap-top"><span id="cap-tag" aria-hidden="true"></span><a id="cap-link" href="#about">open &nearr;</a></div>
+          <div id="cap-read" aria-hidden="true"></div>
+        </figcaption>
+      </figure>
     </div>
 
-    <div class="editor" role="img" aria-label="Code editor showing a short profile: Davidson College, CS and Mathematics, GPA 3.83, Division I sprinter, interested in machine learning, computer vision, building products and data analysis.">
-      <div class="editor-tabs" aria-hidden="true">
-        <span class="tab-active" id="ed-tab">tyler.py</span>
-        <span id="ed-meta">utf-8 &middot; python</span>
-      </div>
+    <div class="editor" role="region" aria-label="Code editor with one file per project">
+      <div class="editor-tabs" id="ed-tabs"></div>
       <div class="editor-body" id="editor-body" aria-hidden="true"></div>
       <div class="statusline" id="ed-status" aria-hidden="true">
         <span class="mode">NORMAL</span>
-        <span class="grow">~/tyler/tyler.py</span>
-        <span class="pos" id="ed-pos">13:59 All</span>
+        <span class="grow" id="ed-path"></span>
+        <span id="ed-lang"></span>
+        <span class="pos" id="ed-pos"></span>
       </div>
       <div class="cmdline" id="ed-cmd" aria-hidden="true"></div>
     </div>
@@ -562,16 +562,137 @@
   <span class="mode" id="bar-mode">NORMAL</span>
   <span class="seg grow" id="bar-main"><span id="bar-path">~/</span></span>
   <span class="seg right" id="showcmd" aria-hidden="true"></span>
-  <span class="seg right hint"><kbd>j</kbd>/<kbd>k</kbd>&nbsp;move &middot;&nbsp;<kbd>:</kbd>&nbsp;command</span>
+  <span class="seg right hint"><kbd>1</kbd>&ndash;<kbd>8</kbd>&nbsp;scenes &middot; <kbd>j</kbd>/<kbd>k</kbd>&nbsp;move &middot;&nbsp;<kbd>:</kbd>&nbsp;command</span>
   <span class="seg right pct" id="bar-pct">Top</span>
   <button type="button" id="theme-btn" aria-label="Toggle light and dark theme">:theme</button>
 </div>
+
+<!-- Editor files: one per scene. Plain text so nothing needs escaping. -->
+<script type="text/plain" id="code-tyler">
+# tyler.py
+
+class Tyler(Student):
+    school  = "Davidson College"
+    majors  = ["Computer Science", "Mathematics"]
+    gpa     = 3.83
+    track   = "Division I sprinter"
+    focus   = ["machine learning", "computer vision",
+               "building products", "data analysis"]
+
+    def reach_out(self):
+        return "tythompson@davidson.edu"
+    # open to internships, research & interesting projects
+</script>
+<script type="text/plain" id="code-hmma">
+// ingest.ts: NAAMM technical library -> pgvector
+import { VoyageAIClient } from "voyageai";
+import { createClient } from "@supabase/supabase-js";
+
+export async function ingest(doc: LibraryDoc) {
+  const chunks = chunk(doc.text, CHUNK_OPTS);
+  const { data } = await voyage.embed({ input: chunks, model: EMBED_MODEL });
+  await supabase.from("chunks").insert(
+    chunks.map((text, i) => ({ text, source: doc.id, embedding: data[i].embedding })),
+  );
+}
+// every answer cites the pages it came from
+</script>
+<script type="text/plain" id="code-cards">
+# detection.py: find cards in a frame
+def detection(contours, gray_image):
+    cards = []
+    for contour in contours:
+        # Ramer: simplify contour to corners; 4 corners ~ a card
+        approx = cv.approxPolyDP(contour, 0.03 * cv.arcLength(contour, True), True)
+        if len(approx) == 4:
+            area = cv.contourArea(contour)
+            if area > 400:
+                cards.append(approx)
+
+    warped_cards = [warp_card(gray_image, c) for c in cards]
+    return template_matching(warped_cards), cards
+</script>
+<script type="text/plain" id="code-kmeans">
+# kmeans.py: clustering Dow Jones stocks by dividend behavior
+features = ['days_to_next_dividend', 'percent_return_next_dividend']
+X_kmeans = X[features].copy()
+
+# Perform K-means clustering with 3 clusters
+kmeans_2d = KMeans(n_clusters = 3, random_state = 123, n_init='auto').fit(X_kmeans)
+
+kmeans_labels_2d = kmeans_2d.labels_
+kmeans_centers_2d = kmeans_2d.cluster_centers_
+
+gmm = GaussianMixture(n_components=3, random_state=123)
+gmm.fit(X_kmeans)
+</script>
+<script type="text/plain" id="code-solar">
+<!-- scene.html: find gog, the lost alien dog -->
+<a-scene>
+  <a-sphere id="sun" radius="5" color="#FDB813"></a-sphere>
+  <a-entity animation="property: rotation; to: 0 360 0; loop: true; dur: 36500">
+    <a-sphere id="earth" position="20 0 0" radius="1"></a-sphere>
+  </a-entity>
+  <!-- gog spawns somewhere random and barks louder as you close in -->
+  <a-image id="gog" src="#alien-dog" random-position></a-image>
+  <a-sound src="#bark" autoplay="true" loop="true"
+           distance-model="inverse" ref-distance="3"></a-sound>
+  <a-camera wasd-controls="fly: true"></a-camera>
+</a-scene>
+</script>
+<script type="text/plain" id="code-flight">
+// map.js: is it rude? perceptions by census region
+const projection = d3.geoAlbersUsa().fitSize([width, height], states);
+const color = d3.scaleSequential(d3.interpolateOrRd).domain([0, 1]);
+
+svg.selectAll("path")
+  .data(states.features)
+  .join("path")
+    .attr("d", d3.geoPath(projection))
+    .attr("fill", d => color(rudeShare.get(regionOf(d))))
+  .append("title")
+    .text(d => `${regionOf(d)}: ${pct(rudeShare.get(regionOf(d)))}`);
+</script>
+<script type="text/plain" id="code-slope">
+# grade.py: MAT 235 slope field, sketched for feedback
+import numpy as np
+
+def f(x, y):
+    return np.sin(x) - 0.4 * y     # y' = sin(x) - 0.4y
+
+def euler(y0, h=0.05, steps=240):
+    xs, ys = [0.0], [y0]
+    for _ in range(steps):
+        ys.append(ys[-1] + h * f(xs[-1], ys[-1]))
+        xs.append(xs[-1] + h)
+    return np.array(xs), np.array(ys)
+</script>
+<script type="text/plain" id="code-sprint">
+# sprint.py: a toy 100m model (not my actual splits)
+import math
+
+V_MAX, TAU = 11.5, 1.3      # top speed m/s, time constant s
+
+def velocity(t):
+    return V_MAX * (1 - math.exp(-t / TAU))
+
+def distance(t):
+    return V_MAX * (t - TAU * (1 - math.exp(-t / TAU)))
+
+t = 0.0
+while distance(t) < 100: t += 0.01
+print(f"100m in {t:.2f}s")
+</script>
 
 <script>
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const rand = s => s[Math.floor(Math.random() * s.length)];
 const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, k) => a + (b - a) * k;
+const ease = k => k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+const gauss = () => Math.sqrt(-2 * Math.log(1 - Math.random())) * Math.cos(2 * Math.PI * Math.random());
 const GLYPHS = '░▒▓/\\<>+=*#%&@$0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 /* ---------- SCRAMBLE DECODE ----------
@@ -616,64 +737,595 @@ function scrambleOnHover(el, ms = 320) {
 }
 document.querySelectorAll('.card-head .dir, .nav-links a').forEach(el => scrambleOnHover(el));
 
-/* ---------- ASCII KEYBOARD ---------- */
-const KB_ROWS = ['`1234567890-=', 'qwertyuiop[]\\', "asdfghjkl;'", 'zxcvbnm,./'];
-const KB_OFFSET = [0, 1.4, 1.8, 2.4];
-const SHIFTED = { '~': '`', '!': '1', '@': '2', '#': '3', '$': '4', '%': '5', '^': '6', '&': '7', '*': '8', '(': '9', ')': '0', '_': '-', '+': '=', '{': '[', '}': ']', '|': '\\', ':': ';', '"': "'", '<': ',', '>': '.', '?': '/' };
-const keyEls = {};
-const kb = document.getElementById('keyboard');
-KB_ROWS.forEach((row, r) => {
-  const div = document.createElement('div');
-  div.className = 'kb-row';
-  div.style.marginLeft = KB_OFFSET[r] + 'rem';
-  for (const ch of row) {
-    const s = document.createElement('span');
-    s.textContent = ch;
-    keyEls[ch] = s;
-    div.appendChild(s);
-  }
-  kb.appendChild(div);
-});
-const spaceRow = document.createElement('div');
-spaceRow.className = 'kb-row';
-spaceRow.innerHTML = '<span class="space">⏎ enter</span><span class="space">─────── space ───────</span>';
-[keyEls.Enter, keyEls[' ']] = spaceRow.children;
-kb.appendChild(spaceRow);
+/* ---------- ASCII GRID ----------
+   tones: 0 faint, 1 muted, 2 fg, 3 accent */
+const GW = 52, GH = 26;
+const TAG = ['', 'b', 'i', 'u'];
+function slopeChar(dx, dy) {
+  // cells are ~6px wide and 10px tall
+  const a = ((Math.atan2(-dy * 10, dx * 6) * 180 / Math.PI) % 180 + 180) % 180;
+  return a < 22.5 || a >= 157.5 ? '-' : a < 67.5 ? '/' : a < 112.5 ? '|' : '\\';
+}
+const grid = {
+  ch: new Array(GW * GH).fill(' '),
+  tone: new Uint8Array(GW * GH),
+  clear() { this.ch.fill(' '); this.tone.fill(0); },
+  put(x, y, c, t = 1) {
+    x = Math.round(x); y = Math.round(y);
+    if (x < 0 || x >= GW || y < 0 || y >= GH) return;
+    this.ch[x + GW * y] = c; this.tone[x + GW * y] = t;
+  },
+  empty(x, y) {
+    x = Math.round(x); y = Math.round(y);
+    return x >= 0 && x < GW && y >= 0 && y < GH && this.ch[x + GW * y] === ' ';
+  },
+  text(x, y, s, t = 1) { for (let i = 0; i < s.length; i++) this.put(x + i, y, s[i], t); },
+  line(x0, y0, x1, y1, t = 1, c = null) {
+    const ch = c || slopeChar(x1 - x0, y1 - y0);
+    x0 = Math.round(x0); y0 = Math.round(y0); x1 = Math.round(x1); y1 = Math.round(y1);
+    const dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0);
+    const sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
+    let err = dx + dy;
+    for (let i = 0; i < 200; i++) {
+      this.put(x0, y0, ch, t);
+      if (x0 === x1 && y0 === y1) break;
+      const e2 = 2 * err;
+      if (e2 >= dy) { err += dy; x0 += sx; }
+      if (e2 <= dx) { err += dx; y0 += sy; }
+    }
+  },
+  box(x0, y0, x1, y1, t = 1) {
+    for (let x = x0 + 1; x < x1; x++) { this.put(x, y0, '─', t); this.put(x, y1, '─', t); }
+    for (let y = y0 + 1; y < y1; y++) { this.put(x0, y, '│', t); this.put(x1, y, '│', t); }
+    this.put(x0, y0, '┌', t); this.put(x1, y0, '┐', t); this.put(x0, y1, '└', t); this.put(x1, y1, '┘', t);
+  },
+  html() {
+    let h = '';
+    for (let r = 0; r < GH; r++) {
+      let cur = 0;
+      for (let c = 0; c < GW; c++) {
+        const o = c + GW * r, t = this.tone[o], ch = this.ch[o];
+        if (t !== cur) {
+          if (cur) h += `</${TAG[cur]}>`;
+          if (t) h += `<${TAG[t]}>`;
+          cur = t;
+        }
+        h += ch === '<' ? '&lt;' : ch === '&' ? '&amp;' : ch;
+      }
+      if (cur) h += `</${TAG[cur]}>`;
+      h += '\n';
+    }
+    return h;
+  },
+};
 
-function press(key) {
-  const k = key.length === 1 ? (SHIFTED[key] || key.toLowerCase()) : key;
-  const el = keyEls[k];
-  if (!el) return;
-  el.classList.remove('hit');
-  void el.offsetWidth;
-  el.classList.add('hit');
-  clearTimeout(el._t);
-  el._t = setTimeout(() => el.classList.remove('hit'), 90);
+// pointer in grid cells (scenes) and normalized to the window (torus steering)
+const ptr = { x: -99, y: -99, inside: false };
+let gmx = 0, gmy = 0;
+
+/* ---------- SCENES ---------- */
+
+// 1. classic ASCII donut, steered by the mouse
+function torusScene() {
+  let A = 0.9, B = 0.3, vA = 0.04, vB = 0.02, spin = 0;
+  const RAMP = '.,-~:;=!*#$@';
+  const zbuf = new Float32Array(GW * GH);
+  return {
+    tag: 'torus',
+    poke() { spin += 0.35; },
+    frame(t, dt) {
+      const f = dt * 30;
+      vA += ((0.03 + gmy * 0.05) - vA) * 0.05;
+      vB += ((0.015 + gmx * 0.05) - vB) * 0.05;
+      spin *= Math.pow(0.94, f);
+      A += (vA + spin) * f; B += (vB + spin * 0.5) * f;
+      zbuf.fill(0);
+      const cA = Math.cos(A), sA = Math.sin(A), cB = Math.cos(B), sB = Math.sin(B);
+      const R1 = 1, R2 = 2, K2 = 5, K1 = GW * K2 * 3 / (8 * (R1 + R2));
+      for (let th = 0; th < 6.283; th += 0.08) {
+        const ct = Math.cos(th), st = Math.sin(th);
+        for (let ph = 0; ph < 6.283; ph += 0.025) {
+          const cp = Math.cos(ph), sp = Math.sin(ph);
+          const cx = R2 + R1 * ct, cy = R1 * st;
+          const x = cx * (cB * cp + sA * sB * sp) - cy * cA * sB;
+          const y = cx * (sB * cp - sA * cB * sp) + cy * cA * cB;
+          const ooz = 1 / (K2 + cA * cx * sp + cy * sA);
+          const xp = Math.floor(GW / 2 + K1 * ooz * x);
+          const yp = Math.floor(GH / 2 - K1 * ooz * y * 0.5);
+          const L = cp * ct * sB - cA * ct * sp - sA * st + cB * (cA * st - ct * sA * sp);
+          if (L > 0 && xp >= 0 && xp < GW && yp >= 0 && yp < GH) {
+            const o = xp + GW * yp;
+            if (ooz > zbuf[o]) {
+              zbuf[o] = ooz;
+              const lvl = Math.min(11, Math.floor(L * 8));
+              grid.ch[o] = RAMP[lvl];
+              grid.tone[o] = lvl >= 10 ? 3 : lvl >= 7 ? 2 : lvl >= 4 ? 1 : 0;
+            }
+          }
+        }
+      }
+      const tau = Math.PI * 2, m = v => ((v % tau) + tau) % tau;
+      this.readout = `θ ${m(A).toFixed(4)}  φ ${m(B).toFixed(4)}  · click to spin`;
+    },
+  };
 }
 
-/* ---------- HERO BOOT SEQUENCE ---------- */
-const SRC = [
-  [['c', '# tyler.py']],
-  [],
-  [['k', 'class '], ['', 'Tyler(Student):']],
-  [['', '    school  = '], ['s', '"Davidson College"']],
-  [['', '    majors  = ['], ['s', '"Computer Science"'], ['', ', '], ['s', '"Mathematics"'], ['', ']']],
-  [['', '    gpa     = '], ['d', '3.83']],
-  [['', '    track   = '], ['s', '"Division I sprinter"']],
-  [['', '    focus   = ['], ['s', '"machine learning"'], ['', ', '], ['s', '"computer vision"'], ['', ',']],
-  [['', '               '], ['s', '"building products"'], ['', ', '], ['s', '"data analysis"'], ['', ']']],
-  [],
-  [['', '    '], ['k', 'def '], ['', 'reach_out(self):']],
-  [['', '        '], ['k', 'return '], ['s', '"tythompson@davidson.edu"']],
-  [['c', '    # open to internships, research & interesting projects']],
+// 2. RAG: library pages chunk off, embed into clusters, a query retrieves top-3
+function ragScene() {
+  const CL = [{ x: 37, y: 6, name: 'frames' }, { x: 45, y: 14, name: 'hardware' }, { x: 34, y: 19, name: 'doors' }];
+  const N = 36, CYCLE = 9;
+  let pts = [], cycle = -1;
+  function reset() {
+    pts = [];
+    for (let k = 0; k < N; k++) {
+      const c = CL[k % 3];
+      pts.push({
+        sx: 15, sy: 7 + (k * 5) % 12,
+        tx: clamp(c.x + gauss() * 2.6, 19, 50), ty: clamp(c.y + gauss() * 1.3, 2, 22),
+        born: 0.4 + k * 0.12,
+      });
+    }
+  }
+  return {
+    tag: 'rag',
+    frame(t) {
+      const n = Math.floor(t / CYCLE), T = t % CYCLE;
+      if (n !== cycle) { cycle = n; reset(); }
+      grid.box(2, 5, 14, 20, 1);
+      grid.text(3, 4, 'library.pdf', 1);
+      for (let r = 7; r <= 18; r++) grid.text(4, r, '─'.repeat(4 + (r * 7) % 6), 0);
+      if (T < 5) grid.put(3, 7 + Math.floor(T * 6) % 12, '▸', 3);
+      let landed = 0;
+      const done = [];
+      const q = { x: 42, y: 11 };
+      for (const p of pts) {
+        const age = T - p.born;
+        if (age < 0) continue;
+        const k = Math.min(1, age / 0.9), e = ease(k);
+        if (k < 1) grid.put(lerp(p.sx, p.tx, e), lerp(p.sy, p.ty, e) - Math.sin(k * Math.PI) * 3, '▪', 2);
+        else { landed++; done.push(p); }
+      }
+      let near = [];
+      if (T > 5.5) {
+        near = done.map(p => ({ p, d: Math.hypot((p.tx - q.x) * 0.6, p.ty - q.y) })).sort((a, b) => a.d - b.d).slice(0, 3).map(o => o.p);
+        near.forEach(p => grid.line(q.x, q.y, p.tx, p.ty, 3, '·'));
+      }
+      done.forEach(p => grid.put(p.tx, p.ty, near.includes(p) ? '●' : '•', near.includes(p) ? 3 : 1));
+      if (T > 2) CL.forEach(c => grid.text(Math.round(c.x - c.name.length / 2), c.y + (c.y > 12 ? 4 : -4), c.name, 0));
+      if (T > 5.5) { grid.put(q.x, q.y, '◆', 3); grid.text(q.x + 2, q.y, 'query', 2); }
+      if (T > 7) grid.text(17, 24, '→ grounded answer + citations', 2);
+      this.readout = T < 5.5 ? `chunk → embed → pgvector  ${landed}/${N}` : 'retrieve top-3 → answer w/ sources';
+    },
+  };
+}
+
+// 3. blackjack: frame → canny edges → 4 corners → warp → template match → hi-lo
+function cardScene() {
+  const DECK = ['KS', '5H', '9D', '2C', 'AS', '6H', '10D', 'QC', '3S', '8H', 'JD', '4C'];
+  const SUIT = { S: 'spades', H: 'hearts', D: 'diamonds', C: 'clubs' };
+  const hilo = c => { const r = c.slice(0, -1); return '23456'.includes(r) ? 1 : ['10', 'J', 'Q', 'K', 'A'].includes(r) ? -1 : 0; };
+  const fmt = v => (v > 0 ? '+' : '') + v;
+  const X0 = 5, Y0 = 6, X1 = 18, Y1 = 17, L = 6.5;
+  const perim = [];
+  for (let x = X0; x <= X1; x++) perim.push([x, Y0]);
+  for (let y = Y0 + 1; y <= Y1; y++) perim.push([X1, y]);
+  for (let x = X1 - 1; x >= X0; x--) perim.push([x, Y1]);
+  for (let y = Y1 - 1; y > Y0; y--) perim.push([X0, y]);
+  let idx = -1, cyc = -1, count = 0, counted = false;
+  const hist = [];
+  return {
+    tag: 'cv.detect',
+    frame(t) {
+      const n = Math.floor(t / L), T = t % L;
+      if (n !== cyc) { cyc = n; idx = (idx + 1) % DECK.length; counted = false; }
+      const card = DECK[idx], rank = card.slice(0, -1), suit = card.slice(-1);
+      grid.text(0, 0, '┌ cam0', 0); grid.put(GW - 1, 0, '┐', 0); grid.put(0, 22, '└', 0); grid.put(GW - 1, 22, '┘', 0);
+      let stage;
+      if (T < 1.4) {
+        stage = 'raw frame';
+        for (let k = 0; k < 160; k++) grid.put(Math.random() * GW, 1 + Math.random() * 20, rand('.:░'), 0);
+        for (let y = Y0; y <= Y1; y++) for (let x = X0; x <= X1; x++) grid.put(x, y, '▒', 0);
+      } else if (T < 2.8) {
+        stage = 'canny edges';
+        for (let k = 0; k < 40; k++) grid.put(Math.random() * GW, 1 + Math.random() * 20, '.', 0);
+        const upto = Math.floor((T - 1.4) / 1.4 * perim.length);
+        perim.slice(0, upto).forEach(([x, y]) => grid.put(x, y, '#', 2));
+        if (perim[upto]) grid.put(perim[upto][0], perim[upto][1], '#', 3);
+      } else {
+        grid.box(X0, Y0, X1, Y1, 2);
+        if (T < 3.8) {
+          stage = 'approxPolyDP';
+          [[X0, Y0], [X1, Y0], [X0, Y1], [X1, Y1]].forEach(([x, y]) => grid.put(x, y, '◆', 3));
+          grid.text(22, 9, 'len(approx) == 4', 1);
+          grid.text(22, 10, '→ likely a card', 2);
+        } else {
+          grid.text(X0 + 1, Y0 + 1, rank, 2);
+          grid.text(X1 - rank.length, Y1 - 1, rank, 2);
+          grid.text(Math.round((X0 + X1) / 2 - rank.length / 2), 11, rank, 3);
+          grid.text(Math.round((X0 + X1) / 2 - SUIT[suit].length / 2), 12, SUIT[suit], 1);
+          if (T < 4.8) {
+            stage = 'warp_card';
+            const sy = Y0 + 1 + Math.floor((T - 3.8) * 10) % (Y1 - Y0 - 1);
+            for (let x = X0 + 1; x < X1; x++) grid.put(x, sy, '─', 3);
+            grid.text(22, 9, 'warpPerspective', 1);
+            grid.text(22, 10, '→ 200 × 300 flat', 2);
+          } else {
+            stage = 'template match';
+            const d = hilo(card);
+            if (!counted && T > 5.2) { counted = true; count += d; hist.push(`${card} ${fmt(d)}`); if (hist.length > 4) hist.shift(); }
+            grid.text(22, 8, 'template_matching', 1);
+            grid.text(22, 10, `→ ${card}`, 2);
+            if (T > 5.2) grid.text(22, 12, `hi-lo ${fmt(d)}`, 3);
+          }
+        }
+      }
+      grid.text(1, 24, hist.join('   '), 1);
+      grid.text(GW - 13, 20, `count ${fmt(count)}`.padStart(12), 3);
+      this.readout = `${stage}  · running count ${fmt(count)}`;
+    },
+  };
+}
+
+// 4. k-means on dividend features, iteration by iteration
+function kmeansScene() {
+  const PX0 = 6, PX1 = 49, PY0 = 2, PY1 = 20, K = 3, GLY = ['•', '+', 'x'];
+  let pts, cents, targ, iter, next, done, holdUntil, inertia;
+  function reset(t) {
+    const centers = Array.from({ length: K }, () => ({ x: lerp(PX0 + 6, PX1 - 6, Math.random()), y: lerp(PY0 + 3, PY1 - 3, Math.random()) }));
+    pts = Array.from({ length: 66 }, (_, i) => {
+      const c = centers[i % K];
+      return { x: clamp(c.x + gauss() * 3.4, PX0, PX1), y: clamp(c.y + gauss() * 1.9, PY0, PY1), l: -1 };
+    });
+    cents = Array.from({ length: K }, () => { const p = rand(pts); return { x: p.x, y: p.y }; });
+    targ = cents.map(c => ({ ...c }));
+    iter = 0; next = t + 0.9; done = false; holdUntil = Infinity; inertia = 0;
+  }
+  const d2 = (a, b) => ((a.x - b.x) * 0.6) ** 2 + (a.y - b.y) ** 2;
+  return {
+    tag: 'kmeans k=3',
+    frame(t, dt) {
+      if (!pts) reset(t);
+      if (!done && t >= next) {
+        inertia = 0;
+        pts.forEach(p => {
+          let best = 0;
+          for (let k = 1; k < K; k++) if (d2(p, targ[k]) < d2(p, targ[best])) best = k;
+          p.l = best; inertia += d2(p, targ[best]);
+        });
+        let moved = 0;
+        targ = targ.map((c, k) => {
+          const mine = pts.filter(p => p.l === k);
+          if (!mine.length) return c;
+          const nc = { x: mine.reduce((s, p) => s + p.x, 0) / mine.length, y: mine.reduce((s, p) => s + p.y, 0) / mine.length };
+          moved = Math.max(moved, Math.hypot(nc.x - c.x, nc.y - c.y));
+          return nc;
+        });
+        iter++; next = t + 0.9;
+        if (moved < 0.05 || iter >= 10) { done = true; holdUntil = t + 2.6; }
+      }
+      if (done && t > holdUntil) reset(t);
+      cents.forEach((c, k) => { c.x = lerp(c.x, targ[k].x, Math.min(1, dt * 6)); c.y = lerp(c.y, targ[k].y, Math.min(1, dt * 6)); });
+      for (let y = PY0 - 1; y <= PY1 + 1; y++) grid.put(PX0 - 2, y, '│', 0);
+      for (let x = PX0 - 1; x <= PX1 + 1; x++) grid.put(x, PY1 + 2, '─', 0);
+      grid.put(PX0 - 2, PY1 + 2, '└', 0);
+      grid.text(PX0 - 2, 0, 'pct_return ↑', 0);
+      grid.text(PX1 - 22, PY1 + 3, 'days_to_next_dividend →', 0);
+      pts.forEach(p => grid.put(p.x, p.y, p.l < 0 ? '·' : GLY[p.l], 1));
+      cents.forEach(c => grid.put(c.x, c.y, '@', 3));
+      this.readout = iter ? `iter ${iter}  · inertia ${inertia.toFixed(1)}${done ? '  · converged' : ''}` : 'random init';
+    },
+  };
+}
+
+// 5. solar system: steer a ship with the mouse and follow the barking to find gog
+function solarScene() {
+  const C = { x: 26, y: 12 };
+  const PL = [[3.5, '·'], [5, 'o'], [6.8, 'o'], [8.6, 'o'], [12, 'O'], [15.5, 'O'], [19, 'o'], [22.5, 'o']]
+    .map(([r, g], i) => ({ r, g, a: i * 2.1, w: 6 / Math.pow(r, 1.5) }));
+  const pos = (r, a) => ({ x: C.x + r * Math.cos(a), y: C.y + r * Math.sin(a) * 0.45 });
+  const px = (a, b) => Math.hypot((a.x - b.x) * 6, (a.y - b.y) * 10) / 10;
+  let dog, ship = { x: 8, y: 20, vx: 0, vy: 0 }, foundAt = -1, found = 0, burnAt = -9;
+  const spawn = () => { dog = pos(9 + Math.random() * 13, Math.random() * 6.283); };
+  spawn();
+  return {
+    tag: 'find gog',
+    frame(t, dt) {
+      PL.forEach(p => { for (let a = 0; a < 6.283; a += 6.283 / (p.r * 2.6)) { const q = pos(p.r, a); if (grid.empty(q.x, q.y)) grid.put(q.x, q.y, '·', 0); } });
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -2; dx <= 2; dx++) if (Math.abs(dx) + Math.abs(dy) < 3) grid.put(C.x + dx, C.y + dy, '*', 3);
+      grid.put(C.x, C.y, '@', 3);
+      PL.forEach((p, i) => { const q = pos(p.r, p.a + p.w * t); grid.put(q.x, q.y, p.g, i === 2 ? 2 : 1); });
+
+      const tx = ptr.inside ? ptr.x : C.x + 21 * Math.cos(t * 0.23), ty = ptr.inside ? ptr.y : C.y + 9 * Math.sin(t * 0.37);
+      const k = Math.min(1, dt * (ptr.inside ? 5 : 1.5));
+      ship.vx = (tx - ship.x) * k; ship.vy = (ty - ship.y) * k;
+      ship.x += ship.vx; ship.y += ship.vy;
+      if (px(ship, C) < 3) { burnAt = t; const a = Math.atan2(ship.y - C.y, ship.x - C.x); ship.x = C.x + Math.cos(a) * 9; ship.y = C.y + Math.sin(a) * 4; }
+
+      const d = px(ship, dog), vol = clamp(1 - d / 22, 0, 1);
+      if (foundAt < 0 && d < 2.2) { foundAt = t; found++; }
+      if (foundAt >= 0) {
+        grid.text(dog.x - 2, dog.y, 'U•w•U', 3);
+        grid.text(dog.x - 4, dog.y - 1, 'found gog!', 2);
+        if (t - foundAt > 2.5) { foundAt = -1; spawn(); }
+      } else if (vol > 0.45) {
+        // sonar: bark rings around gog, visible only near the ship
+        const R = ((t * 7) % 6) + 1;
+        for (let a = 0; a < 6.283; a += 0.15) {
+          const q = { x: dog.x + R * Math.cos(a) * 1.67, y: dog.y + R * Math.sin(a) };
+          if (px(q, ship) < 9 && grid.empty(q.x, q.y)) grid.put(q.x, q.y, '·', 3);
+        }
+      }
+      const sg = Math.abs(ship.vx) > Math.abs(ship.vy) * 1.67 ? (ship.vx > 0 ? '>' : '<') : (ship.vy > 0 ? 'v' : '^');
+      grid.put(ship.x, ship.y, sg, 2);
+      if (t - burnAt < 1.2) grid.text(14, 24, 'too close to the sun!', 3);
+      const bars = Math.round(vol * 8);
+      this.readout = `bark ${'█'.repeat(bars)}${'░'.repeat(8 - bars)} ${String(Math.round(vol * 100)).padStart(3)}%  · found ${found}${ptr.inside ? '' : '  · hover to steer'}`;
+    },
+  };
+}
+
+// 6. flight etiquette: census-region choropleth sweeps in, a flight arcs SEA → NYC
+function flightScene() {
+  const US = [[-124.7, 48.4], [-123, 49], [-95, 49], [-89.5, 48], [-84.5, 46.5], [-82.5, 45.3], [-82.4, 43], [-79, 43.4], [-76, 44], [-75, 45], [-71.5, 45], [-70, 47.4], [-67.8, 47.1], [-67, 44.8], [-70.6, 43], [-70, 41.7], [-73.7, 40.6], [-74.5, 39.5], [-75.5, 38.5], [-76, 37], [-75.7, 35.2], [-77.9, 33.9], [-80.8, 32], [-81.4, 30.3], [-80, 26.8], [-80.4, 25.2], [-81.8, 26.1], [-82.8, 27.9], [-84.3, 30], [-86.5, 30.4], [-89.6, 30.2], [-90, 29.1], [-93.8, 29.7], [-97.2, 27.7], [-97.4, 25.9], [-99.2, 26.6], [-101.4, 29.8], [-103.3, 29], [-104.7, 29.9], [-106.6, 31.8], [-111, 31.3], [-114.8, 32.5], [-117.1, 32.5], [-118.5, 34], [-120.6, 34.6], [-122.4, 37.2], [-123.8, 39.5], [-124.2, 42], [-124, 46.3]];
+  const inside = (x, y) => { let c = false; for (let i = 0, j = US.length - 1; i < US.length; j = i++) { const [xi, yi] = US[i], [xj, yj] = US[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; };
+  const col = lon => 1 + (lon + 125) / 58.5 * 49, row = lat => 3 + (49.5 - lat) / 25 * 16;
+  const region = (lon, lat) =>
+    lon < -114 ? 'pacific' : lon < -103 ? 'mountain' :
+    lon < -89.5 ? (lat > 36.5 ? 'w-n-central' : 'w-s-central') :
+    lon > -73.5 && lat > 41 ? 'new-england' :
+    lon > -80.5 && lat > 39.5 ? 'mid-atlantic' :
+    lon > -84 && lat < 39.5 ? 'south-atlantic' :
+    lat > 37 ? 'e-n-central' : 'e-s-central';
+  const cells = [];
+  for (let r = 3; r <= 19; r++) for (let c = 1; c <= 50; c++) {
+    const lon = -125 + (c - 1) / 49 * 58.5, lat = 49.5 - (r - 3) / 16 * 25;
+    if (inside(lon, lat)) cells.push({ c, r, reg: region(lon, lat), n: Math.random() * 0.15 });
+  }
+  const REGIONS = [...new Set(cells.map(x => x.reg))];
+  const Q = ['is it rude to recline your seat?', 'is it rude to take both armrests?', 'is it rude to bring a baby aboard?', 'is it rude to wake someone to pee?'];
+  const L = 6, SHADE = [['·', 0], ['░', 1], ['▒', 1], ['▓', 2], ['█', 3]];
+  const vals = q => Object.fromEntries(REGIONS.map((g, i) => [g, (Math.sin(q * 12.9898 + i * 78.233) * 43758.5453 % 1 + 1) % 1]));
+  const A = { x: col(-122.3), y: row(47.6) }, B = { x: col(-74), y: row(40.7) };
+  return {
+    tag: 'd3 choropleth',
+    frame(t) {
+      const q = Math.floor(t / L), T = t % L;
+      const now = vals(q % Q.length), prev = vals((q + Q.length - 1) % Q.length);
+      const sweep = T / 1.4 * 52;
+      for (const x of cells) {
+        const v = clamp((x.c < sweep ? now : prev)[x.reg] + x.n, 0, 0.999);
+        const [ch, tone] = SHADE[Math.floor(v * SHADE.length)];
+        grid.put(x.c, x.r, ch, tone);
+      }
+      grid.text(A.x - 1, A.y - 1, 'SEA', 2); grid.text(B.x - 1, B.y - 1, 'NYC', 2);
+      let reg = '';
+      if (T > 1 && T < 5.2) {
+        const k = (T - 1) / 4.2;
+        const at = s => ({ x: lerp(lerp(A.x, (A.x + B.x) / 2, s), lerp((A.x + B.x) / 2, B.x, s), s), y: lerp(lerp(A.y, 0, s), lerp(0, B.y, s), s) });
+        for (let s = Math.max(0, k - 0.35); s < k; s += 0.012) { const p = at(s); grid.put(p.x, p.y, '·', 3); }
+        const p = at(k); grid.put(p.x, p.y, '>', 3);
+        reg = region(-125 + (p.x - 1) / 49 * 58.5, 40);
+      }
+      grid.text(Math.round(GW / 2 - Q[q % Q.length].length / 2 - 1), 22, `"${Q[q % Q.length]}"`, 2);
+      grid.text(10, 24, 'darker = ruder · demo shading', 0);
+      this.readout = `q ${(q % Q.length) + 1}/${Q.length}  · 9 census regions${reg ? '  · over ' + reg : ''}`;
+    },
+  };
+}
+
+// 7. slope field for y' = sin(x) - k·y, with Euler solution curves (hover seeds new ones)
+function slopeScene() {
+  const X0 = 1, X1 = 50, Y0 = 1, Y1 = 22;
+  const toC = x => X0 + x / 12 * (X1 - X0), toR = y => Y0 + (3 - y) / 6 * (Y1 - Y0);
+  const fromC = c => (c - X0) / (X1 - X0) * 12, fromR = r => 3 - (r - Y0) / (Y1 - Y0) * 6;
+  let curves = [], lastAuto = -9, lastHover = -9, k = 0.4;
+  const f = (x, y) => Math.sin(x) - k * y;
+  function seed(x0, y0, t) {
+    const pts = [[x0, y0]];
+    let x = x0, y = y0;
+    while (x < 12 && Math.abs(y) < 3.3 && pts.length < 400) { y += 0.05 * f(x, y); x += 0.05; pts.push([x, y]); }
+    curves.push({ pts, born: t, y0: y0, x0: x0 });
+    if (curves.length > 5) curves.shift();
+  }
+  let now = 0;
+  return {
+    tag: "y' = f(x, y)",
+    poke() { if (ptr.inside) seed(fromC(ptr.x), fromR(ptr.y), now); },
+    frame(t) {
+      now = t;
+      k = 0.4 + 0.15 * Math.sin(t * 0.25);
+      if (ptr.inside && t - lastHover > 0.8) { lastHover = t; seed(fromC(ptr.x), fromR(ptr.y), t); }
+      else if (!ptr.inside && t - lastAuto > 2.2) { lastAuto = t; seed(0, -2.6 + Math.random() * 5.2, t); }
+      for (let r = Y0 + 1; r < Y1; r += 2) for (let c = X0 + 1; c < X1; c += 3) {
+        // rows per column the solution moves here
+        const s = f(fromC(c), fromR(r)) * ((Y1 - Y0) / 6) / ((X1 - X0) / 12);
+        grid.put(c, r, slopeChar(1, -s), 0);
+      }
+      grid.text(X1 - 1, toR(0), 'x', 1);
+      curves.forEach((cv, i) => {
+        const upto = Math.min(cv.pts.length - 1, Math.floor((t - cv.born) / 2 * cv.pts.length));
+        const tone = i === curves.length - 1 ? 2 : 1;
+        for (let j = 1; j <= upto; j++) {
+          const [xa, ya] = cv.pts[j - 1], [xb, yb] = cv.pts[j];
+          grid.put(toC(xb), toR(yb), slopeChar(toC(xb) - toC(xa), toR(yb) - toR(ya)), tone);
+        }
+        const [hx, hy] = cv.pts[upto];
+        if (upto < cv.pts.length - 1) grid.put(toC(hx), toR(hy), '●', 3);
+      });
+      const last = curves[curves.length - 1];
+      this.readout = `y' = sin(x) − ${k.toFixed(2)}·y` + (last ? `  · y(${last.x0.toFixed(1)}) = ${last.y0.toFixed(2)}` : '') + (ptr.inside ? '' : '  · hover to seed');
+    },
+  };
+}
+
+// 8. sprinter: procedural stick figure driven by a toy 100m velocity model
+function sprintScene() {
+  const V = 11.5, TAU = 1.3, RX = 16, GROUND = 20, S = 1.67;
+  const dist = s => V * (s - TAU * (1 - Math.exp(-s / TAU)));
+  const vel = s => V * (1 - Math.exp(-s / TAU));
+  let start = null, phase = 0, finish = null, finishWall = 0;
+  return {
+    tag: 'sprint.sim',
+    frame(t, dt) {
+      if (start === null) start = t;
+      let s = Math.max(0, t - start - 0.6);
+      if (finish !== null) { s = finish; if (t - finishWall > 2.6) { start = t; finish = null; phase = 0; s = 0; } }
+      const d = dist(s), v = finish !== null ? 0 : vel(s);
+      if (finish === null && d >= 100) { finish = s; finishWall = t; }
+      phase += dt * (v / 4.4) * 2 * Math.PI;
+
+      for (let x = 0; x < GW; x++) grid.put(x, GROUND + 1, '─', 1);
+      for (let x = 0; x < GW; x++) if (((x - RX + Math.floor(d * 2)) % 4 + 4) % 4 < 2) grid.put(x, GROUND + 3, '-', 0);
+      for (let m = 0; m <= 100; m += 10) {
+        const mx = Math.round(RX + (m - d) * 2);
+        if (mx >= 0 && mx < GW) {
+          grid.put(mx, GROUND + 2, '|', 1);
+          if (m < 100) grid.text(mx - 1, GROUND + 4, m + 'm', 0);
+          else { for (let y = 5; y <= GROUND; y++) grid.put(mx, y, '┊', 3); grid.text(mx - 3, 4, 'FINISH', 3); }
+        }
+      }
+
+      // angles are from straight down, forward positive; x is stretched because cells are tall
+      const P = (o, len, a) => ({ x: o.x + Math.sin(a) * len * S, y: o.y + Math.cos(a) * len });
+      const bob = 0.4 * Math.abs(Math.cos(phase));
+      const hip = { x: RX, y: GROUND - 6.6 - bob };
+      const lean = 0.35;
+      const sh = { x: hip.x + Math.sin(lean) * 5 * S, y: hip.y - Math.cos(lean) * 5 };
+      const head = { x: sh.x + Math.sin(lean) * 1.5 * S, y: sh.y - 1.5 };
+      const limbs = [1, 0].map(i => {
+        const ph = phase + i * Math.PI;
+        const a = 0.2 + 0.75 * Math.sin(ph);                                          // knee drive ↔ push-off
+        const bend = 0.2 + 1.5 * Math.max(0, Math.cos(ph)) + 0.6 * Math.max(0, Math.sin(ph)); // heel kicks up on recovery
+        const knee = P(hip, 3.4, a), foot = P(knee, 3.4, a - bend);
+        foot.y = Math.min(foot.y, GROUND);
+        const c = -0.9 * Math.sin(ph);                                                // arm opposite its leg
+        const elbow = P(sh, 2.2, c), hand = P(elbow, 1.9, c + 1.3);
+        return { i, knee, foot, elbow, hand };
+      });
+      limbs.forEach(({ i, knee, foot, elbow, hand }) => {
+        const tone = i === 0 ? 2 : 1;
+        grid.line(hip.x, hip.y, knee.x, knee.y, tone); grid.line(knee.x, knee.y, foot.x, foot.y, tone);
+        grid.line(sh.x, sh.y, elbow.x, elbow.y, tone); grid.line(elbow.x, elbow.y, hand.x, hand.y, tone);
+      });
+      grid.line(hip.x, hip.y, sh.x, sh.y, 2);
+      grid.put(head.x, head.y, 'O', 2);
+      if (v > 8) for (let k = 0; k < 4; k++) grid.text(RX - 9 - k * 2 - Math.floor(phase) % 2, 9 + k * 2, '--', 0);
+
+      this.readout = finish !== null
+        ? `100m in ${finish.toFixed(2)}s  · toy model, not my PR`
+        : `t ${s.toFixed(2)}s  · ${Math.min(d, 100).toFixed(1)}m  · ${v.toFixed(1)} m/s`;
+    },
+  };
+}
+
+/* ---------- FILES: editor buffer + scene ---------- */
+const FILES = [
+  { tab: 'tyler.py', path: '~/tyler/tyler.py', lang: 'python', code: 'tyler', make: torusScene, link: '#about' },
+  { tab: 'ingest.ts', path: '~/projects/hmma-direct/ingest.ts', lang: 'ts', code: 'hmma', make: ragScene, link: 'https://askhmma.naamm.org' },
+  { tab: 'detection.py', path: '~/projects/blackjack/detection.py', lang: 'python', code: 'cards', make: cardScene, link: 'https://github.com/tylerthompson17/Image-Processing-Blackjack-Card-Counting-Project-Public' },
+  { tab: 'kmeans.py', path: '~/projects/ml-stocks/kmeans.py', lang: 'python', code: 'kmeans', make: kmeansScene, link: 'https://github.com/tylerthompson17/ml-stock-market-analysis' },
+  { tab: 'scene.html', path: '~/projects/solar-vr/scene.html', lang: 'html', code: 'solar', make: solarScene, link: 'ds3.html' },
+  { tab: 'map.js', path: '~/projects/flight-viz/map.js', lang: 'js', code: 'flight', make: flightScene, link: 'ds2.html' },
+  { tab: 'grade.py', path: '~/davidson/mat235/grade.py', lang: 'python', code: 'slope', make: slopeScene, link: '#experience' },
+  { tab: 'sprint.py', path: '~/track/sprint.py', lang: 'python', code: 'sprint', make: sprintScene, link: '#about' },
 ];
 
+const KEYWORDS = {
+  python: 'def return for in if import from as while class not and or None True False lambda with print',
+  ts: 'import from export async function const let await return new type interface',
+  js: 'const let return new function import from export await',
+};
+function tokenize(line, lang) {
+  const out = [];
+  const push = (cls, txt) => {
+    const last = out[out.length - 1];
+    if (last && last[0] === cls) last[1] += txt; else out.push([cls, txt]);
+  };
+  if (lang === 'html') {
+    const re = /(<!--.*?-->)|("[^"]*")|(<\/?[\w-]+)|([^<"]+|.)/g;
+    let m;
+    while ((m = re.exec(line))) push(m[1] ? 'c' : m[2] ? 's' : m[3] ? 'k' : '', m[0]);
+    return out;
+  }
+  const kw = new Set(KEYWORDS[lang].split(' '));
+  const comment = lang === 'python' ? '#.*$' : '\\/\\/.*$';
+  const re = new RegExp(`(${comment})|("(?:[^"\\\\]|\\\\.)*"|'(?:[^'\\\\]|\\\\.)*'|\`[^\`]*\`)|(\\b\\d+(?:\\.\\d+)?\\b)|([A-Za-z_]\\w*)|(\\s+|.)`, 'g');
+  let m;
+  while ((m = re.exec(line))) push(m[1] ? 'c' : m[2] ? 's' : m[3] ? 'd' : m[4] && kw.has(m[4]) ? 'k' : '', m[0]);
+  return out;
+}
+FILES.forEach(f => {
+  const src = document.getElementById('code-' + f.code).textContent.replace(/^\n/, '').replace(/\s+$/, '');
+  f.lines = src.split('\n').map(l => tokenize(l, f.lang));
+});
+
+/* ---------- SCENE ENGINE ---------- */
+const sceneEl = document.getElementById('scene');
+const capTag = document.getElementById('cap-tag');
+const capRead = document.getElementById('cap-read');
+const capLink = document.getElementById('cap-link');
+let active = null, sceneT = 0, dissolve = 0, sceneVisible = true, lastFrame = 0;
+
+function setScene(i) {
+  const f = FILES[i];
+  active = f.make();
+  sceneT = 0;
+  dissolve = reduceMotion ? 0 : 0.35;
+  capTag.textContent = `['${active.tag}']`;
+  capLink.href = f.link;
+  const external = f.link.startsWith('http');
+  capLink.target = external ? '_blank' : '';
+  capLink.rel = external ? 'noopener' : '';
+  // reduced motion: settle the simulation offscreen and show one still frame
+  const settle = reduceMotion ? 150 : 1;
+  for (let k = 0; k < settle; k++) { grid.clear(); active.frame(k / 30, 1 / 30); }
+  drawScene();
+}
+function drawScene() {
+  if (dissolve > 0) {
+    for (let o = 0; o < grid.ch.length; o++) {
+      if ((grid.ch[o] !== ' ' || Math.random() < 0.25) && Math.random() < dissolve * 2.5) { grid.ch[o] = rand(GLYPHS); grid.tone[o] = 0; }
+    }
+  }
+  sceneEl.innerHTML = grid.html();
+  capRead.textContent = active.readout || '';
+}
+function sceneLoop(now) {
+  requestAnimationFrame(sceneLoop);
+  if (!active || !sceneVisible || document.hidden || now - lastFrame < 33) return;
+  const dt = Math.min(0.1, (now - lastFrame) / 1000);
+  lastFrame = now;
+  sceneT += dt;
+  dissolve = Math.max(0, dissolve - dt);
+  grid.clear();
+  active.frame(sceneT, dt);
+  drawScene();
+}
+if (!reduceMotion) {
+  requestAnimationFrame(sceneLoop);
+  new IntersectionObserver(([e]) => { sceneVisible = e.isIntersecting; }).observe(sceneEl);
+  window.addEventListener('mousemove', e => {
+    gmx = e.clientX / window.innerWidth * 2 - 1;
+    gmy = e.clientY / window.innerHeight * 2 - 1;
+  }, { passive: true });
+  sceneEl.addEventListener('mousemove', e => {
+    const r = sceneEl.getBoundingClientRect();
+    ptr.x = (e.clientX - r.left) / r.width * GW;
+    ptr.y = (e.clientY - r.top) / r.height * GH;
+    ptr.inside = true;
+  });
+  sceneEl.addEventListener('mouseleave', () => { ptr.inside = false; });
+  sceneEl.addEventListener('click', () => active && active.poke && active.poke());
+}
+
+/* ---------- EDITOR ---------- */
 const nameEl = document.getElementById('name');
 const nameCursor = document.getElementById('name-cursor');
 const body = document.getElementById('editor-body');
-const edTab = document.getElementById('ed-tab');
-const edMeta = document.getElementById('ed-meta');
+const tabsEl = document.getElementById('ed-tabs');
 const edStatus = document.getElementById('ed-status');
+const edPath = document.getElementById('ed-path');
+const edLang = document.getElementById('ed-lang');
 const edPos = document.getElementById('ed-pos');
 const edCmd = document.getElementById('ed-cmd');
 
@@ -681,9 +1333,19 @@ const caret = document.createElement('span');
 caret.className = 'caret';
 caret.innerHTML = '&nbsp;';
 
-function buildRows() {
+function renderTabs(activeIdx) {
+  tabsEl.innerHTML = FILES.map((f, i) =>
+    `<button type="button" class="tab${i === activeIdx ? ' active' : ''}" data-i="${i}" aria-pressed="${i === activeIdx}"><span class="ix">${i + 1}</span>${f.tab}</button>`
+  ).join('');
+}
+tabsEl.addEventListener('click', e => {
+  const b = e.target.closest('.tab[data-i]');
+  if (b) openScene(+b.dataset.i);
+});
+
+function buildRows(lines) {
   body.innerHTML = '';
-  return SRC.map((tokens, i) => {
+  return lines.map((tokens, i) => {
     const el = document.createElement('div');
     el.className = 'ln';
     el.innerHTML = `<span class="n">${i + 1}</span><span class="t">${
@@ -693,149 +1355,96 @@ function buildRows() {
     return el;
   });
 }
-const lineLen = i => SRC[i].reduce((n, [, t]) => n + t.length, 0);
+const lineLen = tokens => tokens.reduce((n, [, t]) => n + t.length, 0);
 function placeCursor(rows, i) {
   rows.forEach(r => r.classList.remove('cur'));
   rows[i].classList.add('cur');
   rows[i].querySelector('.t').appendChild(caret);
 }
 
-async function typeText(el, text, [min, max] = [45, 110]) {
-  for (const ch of text) {
-    el.textContent += ch;
-    press(ch);
-    await sleep(min + Math.random() * (max - min));
+let openToken = 0, currentIdx = -1;
+async function openScene(i, { boot = false } = {}) {
+  const my = ++openToken;
+  const f = FILES[i];
+  const alive = () => my === openToken;
+  if (!boot && !reduceMotion) {
+    caret.classList.add('solid');
+    const typed = document.createElement('span');
+    edCmd.textContent = '';
+    edCmd.append(typed, caret);
+    for (const ch of `:e ${f.path.slice(2)}`) {
+      if (!alive()) return;
+      typed.textContent += ch;
+      await sleep(12 + Math.random() * 14);
+    }
+    await sleep(110);
+    if (!alive()) return;
   }
+  currentIdx = i;
+  renderTabs(i);
+  edStatus.classList.remove('off');
+  edPath.textContent = f.path;
+  edLang.textContent = f.lang;
+  setScene(i);
+  edCmd.textContent = '';
+  const rows = buildRows(f.lines);
+  const last = rows.length - 1;
+  const hint = `-- ${i + 1}/${FILES.length} -- click a tab or press 1–${FILES.length}`;
+  if (reduceMotion) {
+    placeCursor(rows, last);
+    edPos.textContent = `${rows.length}:${lineLen(f.lines[last]) + 1} All`;
+    edCmd.textContent = hint;
+    return;
+  }
+  caret.classList.add('solid');
+  rows.forEach(r => r.classList.add('hidden'));
+  await Promise.all(rows.map((row, j) => sleep(j * (boot ? 70 : 40)).then(() => {
+    if (!alive()) return;
+    row.classList.remove('hidden');
+    placeCursor(rows, j);
+    edPos.textContent = `${j + 1}:1 ${Math.round((j + 1) / rows.length * 100)}%`;
+    const spans = [...row.querySelectorAll('.t > span')];
+    return decode(spans.map(el => ({ el, text: el.textContent })), (boot ? 240 : 160) + lineLen(f.lines[j]) * 3);
+  })));
+  if (!alive()) return;
+  placeCursor(rows, last);
+  edPos.textContent = `${rows.length}:${lineLen(f.lines[last]) + 1} All`;
+  edCmd.textContent = hint;
+  caret.classList.remove('solid');
 }
 
-function showFinal() {
-  nameCursor.classList.add('gone');
-  const rows = buildRows();
-  placeCursor(rows, rows.length - 1);
-}
+/* ---------- BOOT ---------- */
+const first = Math.floor(Math.random() * FILES.length);
 
 async function boot() {
   // 1. name resolves out of noise; the block cursor rides along, then hands off
-  caret.classList.add('solid');
   await decode([{ el: nameEl, text: 'Tyler Thompson' }], 900, { fill: true });
   await sleep(250);
   nameCursor.classList.add('gone');
 
-  // 2. a shell inside the editor frame
-  edTab.textContent = 'zsh';
-  edMeta.textContent = '~';
+  // 2. a shell inside the editor frame types the command that opens today's file
+  tabsEl.innerHTML = '<span class="tab active">zsh</span>';
   edStatus.classList.add('off');
   body.innerHTML = '<div class="ln shell"><span><span class="who">tyler@davidson</span> <span class="path">~ ›</span> <span id="sh"></span></span></div>';
   const sh = document.getElementById('sh');
   sh.after(caret);
-  caret.classList.remove('solid');
-  await sleep(500);
+  await sleep(450);
   caret.classList.add('solid');
-  await typeText(sh, 'nvim tyler.py');
-  await sleep(180);
-  press('Enter');
+  for (const ch of `nvim ${FILES[first].path.slice(2)}`) {
+    sh.textContent += ch;
+    await sleep(35 + Math.random() * 55);
+  }
   await sleep(220);
 
-  // 3. vim opens; each line decodes in on a stagger
-  edTab.textContent = 'tyler.py';
-  edMeta.textContent = 'utf-8 · python';
-  edStatus.classList.remove('off');
-  const rows = buildRows();
-  rows.forEach(r => r.classList.add('hidden'));
-  const jobs = rows.map((row, i) => sleep(i * 75).then(() => {
-    row.classList.remove('hidden');
-    placeCursor(rows, i);
-    edPos.textContent = `${i + 1}:1 ${Math.round((i + 1) / rows.length * 100)}%`;
-    const spans = [...row.querySelectorAll('.t > span')];
-    return decode(spans.map(el => ({ el, text: el.textContent })), 260 + lineLen(i) * 4);
-  }));
-  await Promise.all(jobs);
-  placeCursor(rows, rows.length - 1);
-  edPos.textContent = `13:${lineLen(12) + 1} All`;
-
-  // 4. save it
-  await sleep(450);
-  edCmd.textContent = '';
-  edCmd.appendChild(caret);
-  const cmdText = document.createElement('span');
-  edCmd.prepend(cmdText);
-  await typeText(cmdText, ':w', [90, 140]);
-  await sleep(150);
-  press('Enter');
-  edCmd.textContent = `"tyler.py" ${rows.length}L, 512B written`;
-  placeCursor(rows, rows.length - 1);
-  caret.classList.remove('solid');
+  // 3. vim opens the file and its scene comes alive
+  await openScene(first, { boot: true });
 }
 
-if (reduceMotion) showFinal();
-else boot();
-
-/* ---------- ASCII TORUS (the classic donut, steered by the mouse) ---------- */
-const torusEl = document.getElementById('torus');
-const torusFig = document.getElementById('torus-fig');
-const anglesEl = document.getElementById('torus-angles');
-const TW = 52, TH = 26, RAMP = '.,-~:;=!*#$@';
-let A = 0.9, B = 0.3, vA = 0.04, vB = 0.02, spin = 0, mx = 0, my = 0, torusVisible = true;
-
-function renderTorus() {
-  const out = new Array(TW * TH).fill(' ');
-  const zbuf = new Float32Array(TW * TH);
-  const cA = Math.cos(A), sA = Math.sin(A), cB = Math.cos(B), sB = Math.sin(B);
-  const R1 = 1, R2 = 2, K2 = 5, K1 = TW * K2 * 3 / (8 * (R1 + R2));
-  for (let th = 0; th < 6.283; th += 0.08) {
-    const ct = Math.cos(th), st = Math.sin(th);
-    for (let ph = 0; ph < 6.283; ph += 0.025) {
-      const cp = Math.cos(ph), sp = Math.sin(ph);
-      const cx = R2 + R1 * ct, cy = R1 * st;
-      const x = cx * (cB * cp + sA * sB * sp) - cy * cA * sB;
-      const y = cx * (sB * cp - sA * cB * sp) + cy * cA * cB;
-      const ooz = 1 / (K2 + cA * cx * sp + cy * sA);
-      const xp = Math.floor(TW / 2 + K1 * ooz * x);
-      const yp = Math.floor(TH / 2 - K1 * ooz * y * 0.5);
-      const L = cp * ct * sB - cA * ct * sp - sA * st + cB * (cA * st - ct * sA * sp);
-      if (L > 0 && xp >= 0 && xp < TW && yp >= 0 && yp < TH) {
-        const o = xp + TW * yp;
-        if (ooz > zbuf[o]) { zbuf[o] = ooz; out[o] = RAMP[Math.min(11, Math.floor(L * 8))]; }
-      }
-    }
-  }
-  // tint by brightness: dim → muted → fg → accent
-  let html = '';
-  for (let r = 0; r < TH; r++) {
-    for (let c = 0; c < TW; c++) {
-      const ch = out[c + TW * r];
-      const lvl = RAMP.indexOf(ch);
-      html += lvl >= 10 ? `<u>${ch}</u>` : lvl >= 7 ? `<i>${ch}</i>` : lvl >= 4 ? `<b>${ch}</b>` : ch;
-    }
-    html += '\n';
-  }
-  torusEl.innerHTML = html;
-  const tau = Math.PI * 2;
-  anglesEl.textContent = `θ ${(((A % tau) + tau) % tau).toFixed(4)}  φ ${(((B % tau) + tau) % tau).toFixed(4)}`;
-}
-
-let lastFrame = 0;
-function torusLoop(now) {
-  requestAnimationFrame(torusLoop);
-  if (!torusVisible || document.hidden || now - lastFrame < 33) return;
-  lastFrame = now;
-  // mouse steers the spin; clicks add a burst that decays
-  vA += ((0.03 + my * 0.05) - vA) * 0.05;
-  vB += ((0.015 + mx * 0.05) - vB) * 0.05;
-  spin *= 0.94;
-  A += vA + spin;
-  B += vB + spin * 0.5;
-  renderTorus();
-}
-renderTorus();
-if (!reduceMotion) {
-  requestAnimationFrame(torusLoop);
-  new IntersectionObserver(([e]) => { torusVisible = e.isIntersecting; }).observe(torusFig);
-  window.addEventListener('mousemove', e => {
-    mx = e.clientX / window.innerWidth * 2 - 1;
-    my = e.clientY / window.innerHeight * 2 - 1;
-  }, { passive: true });
-  torusFig.addEventListener('click', () => { spin += 0.35; });
+if (reduceMotion) {
+  nameCursor.classList.add('gone');
+  openScene(first);
+} else {
+  boot();
 }
 
 /* ---------- SECTIONS: type the command, then show its output ---------- */
@@ -919,7 +1528,7 @@ function toggleTheme() {
 }
 document.getElementById('theme-btn').addEventListener('click', toggleTheme);
 
-/* ---------- KEYBOARD: j/k, g/G, and :commands ---------- */
+/* ---------- KEYBOARD: 1–8 scenes, j/k sections, g/G, and :commands ---------- */
 const bar = document.getElementById('bar');
 const barMode = document.getElementById('bar-mode');
 const barMain = document.getElementById('bar-main');
@@ -934,6 +1543,9 @@ function stepSection(dir) {
   const cur = currentSection() || 'top';
   const idx = Math.max(0, Math.min(order.length - 1, order.indexOf(cur) + dir));
   goTo(order[idx]);
+}
+function stepScene(dir) {
+  openScene(((currentIdx < 0 ? first : currentIdx) + dir + FILES.length) % FILES.length);
 }
 function flash(text) {
   barMain.innerHTML = `<span class="msg">${esc(text)}</span>`;
@@ -952,10 +1564,12 @@ const COMMANDS = {
   about: () => goTo('about'), projects: () => goTo('projects'),
   experience: () => goTo('experience'), contact: () => goTo('contact'),
   top: () => goTo('top'), q: () => flash('nice try. there is no escape from vim.'),
-  spin: () => { spin += 0.6; goTo('top'); },
+  next: () => { goTo('top'); stepScene(1); },
+  prev: () => { goTo('top'); stepScene(-1); },
+  random: () => { goTo('top'); openScene(Math.floor(Math.random() * FILES.length)); },
   github: () => window.open('https://github.com/tylerthompson17', '_blank', 'noopener'),
   email: () => { location.href = 'mailto:tythompson@davidson.edu'; },
-  help: () => flash('try: about projects experience contact github email theme spin'),
+  help: () => flash('try: next prev random about projects experience contact github email theme'),
 };
 
 function openCommand() {
@@ -965,7 +1579,6 @@ function openCommand() {
   const input = document.getElementById('cmd');
   input.focus();
   input.addEventListener('keydown', e => {
-    press(e.key);
     if (e.key === 'Escape') { restoreBar(); }
     if (e.key === 'Enter') {
       const name = input.value.trim().toLowerCase();
@@ -983,14 +1596,16 @@ document.addEventListener('keydown', e => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
   const key = e.code === 'Semicolon' && e.shiftKey ? ':' : e.key;
-  press(key);
   if (key.length === 1) {
     showBuf = (showBuf + key).slice(-6);
     showcmd.textContent = showBuf;
     clearTimeout(showcmd._t);
     showcmd._t = setTimeout(() => { showBuf = ''; showcmd.textContent = ''; }, 1200);
   }
+  if (/^[1-8]$/.test(key)) { openScene(+key - 1); return; }
   switch (key) {
+    case ']': stepScene(1); break;
+    case '[': stepScene(-1); break;
     case 'j': stepSection(1); break;
     case 'k': stepSection(-1); break;
     case 'g': goTo('top'); break;
