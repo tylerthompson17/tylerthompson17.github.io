@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASCII Cam - Tyler Thompson</title>
+<meta name="description" content="Turn any video, image, or your webcam into live ASCII art, right in the browser. Nothing is uploaded.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<script>
+  document.documentElement.classList.add('js');
+  try { const t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+<link rel="stylesheet" href="site.css">
+<style>
+  /* CONVERTER */
+  .cam { border: 1px solid var(--rule-strong); margin-bottom: 1rem; }
+  .cam-bar {
+    display: flex; justify-content: space-between; gap: 1rem;
+    padding: 0.35rem 0.7rem; border-bottom: 1px solid var(--rule);
+    font-size: 0.7rem; color: var(--muted);
+  }
+  .cam-bar #cam-tag { color: var(--accent); }
+  .cam-bar #cam-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cam-stage { position: relative; padding: 0.75rem; display: grid; place-items: center; min-height: 240px; }
+  .cam-stage pre {
+    font-family: var(--mono); font-size: 8px; line-height: 8px; letter-spacing: 0;
+    color: var(--faint); user-select: none; overflow: hidden;
+    font-variant-ligatures: none;
+  }
+  .cam-stage pre b { font-weight: 400; color: var(--muted); }
+  .cam-stage pre i { font-style: normal; color: var(--fg); }
+  .cam-stage pre u { text-decoration: none; color: var(--accent); }
+  .cam-drop {
+    position: absolute; inset: 0.5rem; display: none; place-items: center;
+    border: 1px dashed var(--accent); background: color-mix(in srgb, var(--bg) 82%, transparent);
+    color: var(--accent); font-size: 0.85rem;
+  }
+  .cam-stage.drag .cam-drop { display: grid; }
+
+  .cam-seek, .cam-controls {
+    display: flex; align-items: center; gap: 0.6rem 1.25rem; flex-wrap: wrap;
+    padding: 0.5rem 0.7rem; border-top: 1px solid var(--rule);
+    font-size: 0.72rem; color: var(--muted);
+  }
+  .cam-seek[hidden] { display: none; }
+  .cam-seek input { flex: 1; min-width: 120px; }
+  .cam-seek #time { font-variant-numeric: tabular-nums; color: var(--fg); }
+  .cam-controls label { display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer; }
+  .cam-controls output { color: var(--fg); min-width: 3ch; font-variant-numeric: tabular-nums; }
+  .cam-controls .grow { flex: 1; }
+  .cam input[type="range"] { accent-color: var(--accent); width: 110px; }
+  .cam input[type="checkbox"] { accent-color: var(--accent); }
+  .cam select {
+    font: inherit; color: var(--fg); background: var(--bg);
+    border: 1px solid var(--rule-strong); padding: 0.1rem 0.3rem;
+  }
+  .cam .btn { font-size: 0.72rem; padding: 0.3rem 0.7rem; }
+  .cam .btn.rec { border-color: var(--accent); color: var(--accent); }
+  .cam .btn.rec:hover { background: var(--accent); color: var(--bg); }
+  .cam .btn:disabled { opacity: 0.4; pointer-events: none; }
+  .cam-read {
+    padding: 0.4rem 0.7rem; border-top: 1px solid var(--rule);
+    font-size: 0.68rem; color: var(--muted); white-space: pre; overflow: hidden; text-overflow: ellipsis;
+  }
+  .cam-read.msg { color: var(--accent); }
+  #sources { position: fixed; left: 0; top: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; overflow: hidden; }
+  .bar.rec-mode .mode { background: var(--accent); }
+
+  @media (max-width: 820px) {
+    .cam-controls .grow { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a href="index.html" class="brand" aria-label="Tyler Thompson, home">
+      <span class="brand-mark">TT</span><span class="brand-name">tyler.thompson</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html#about">about</a></li>
+      <li><a href="index.html#projects" class="active">projects</a></li>
+      <li><a href="index.html#experience">experience</a></li>
+      <li><a href="index.html#contact">contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<header class="wu-head">
+  <div class="prompt"><span class="who">tyler@davidson</span> <span class="path">~/projects/ascii-cam</span><span class="cmd">./ascii-cam --live</span></div>
+  <div class="out">
+    <p class="wu-comment">// side project &middot; 2026 &middot; runs entirely in your browser</p>
+    <h1 class="wu-title" aria-label="ASCII Cam"><span id="wu-title-text" aria-hidden="true">ASCII Cam</span><span class="cursor" id="wu-cursor" aria-hidden="true"></span></h1>
+    <p class="wu-lede">Turns any video, image, or your webcam into live ASCII art, in the same glyph style as the scenes on my homepage. Nothing is uploaded: every frame is converted inside this tab.</p>
+    <div class="hero-actions">
+      <button type="button" class="btn primary" id="open-file">open video &uarr;</button>
+      <button type="button" class="btn" id="use-cam">webcam</button>
+      <button type="button" class="btn" id="use-demo">demo</button>
+    </div>
+    <input type="file" id="file" accept="video/*,image/*" hidden>
+  </div>
+  <aside class="readout out" aria-label="Render stats">
+    <div class="readout-head"><span>render --stats</span><span id="st-live">live</span></div>
+    <dl>
+      <div class="row"><dt>source</dt><dd class="plain" id="st-src">demo</dd></div>
+      <div class="row"><dt>grid</dt><dd id="st-grid">-</dd></div>
+      <div class="row"><dt>fps</dt><dd id="st-fps">-</dd></div>
+      <div class="row"><dt>mode</dt><dd class="plain" id="st-mode">luma</dd></div>
+      <div class="row"><dt>ramp</dt><dd class="plain" id="st-ramp">classic</dd></div>
+      <div class="row"><dt>uploaded</dt><dd class="plain">0 bytes</dd></div>
+    </dl>
+  </aside>
+</header>
+
+<figure class="cam" aria-label="ASCII converter">
+  <div class="cam-bar"><span id="cam-tag">['ascii.cam']</span><span id="cam-name">demo.canvas</span></div>
+  <div class="cam-stage" id="stage">
+    <pre id="out" aria-hidden="true"></pre>
+    <div class="cam-drop" aria-hidden="true">drop a video or image &darr;</div>
+  </div>
+  <div class="cam-seek" id="seek-row" hidden>
+    <button type="button" class="btn" id="play">pause</button>
+    <input type="range" id="seek" min="0" max="1000" value="0" aria-label="Seek">
+    <span id="time">0:00 / 0:00</span>
+  </div>
+  <div class="cam-controls">
+    <label>cols <input type="range" id="cols" min="40" max="200" step="4" value="120"><output id="cols-v">120</output></label>
+    <label>mode <select id="mode"><option value="luma">luma</option><option value="edges">edges</option></select></label>
+    <label>ramp <select id="ramp"><option value="classic">classic</option><option value="blocks">blocks</option><option value="binary">binary</option><option value="dense">dense</option></select></label>
+    <label>contrast <input type="range" id="contrast" min="0.5" max="2.5" step="0.1" value="1"><output id="contrast-v">1.0</output></label>
+    <label><input type="checkbox" id="invert"> invert</label>
+    <label><input type="checkbox" id="mirror"> mirror</label>
+    <span class="grow"></span>
+    <button type="button" class="btn" id="yank">yank frame</button>
+    <button type="button" class="btn rec" id="rec">&#9679; rec</button>
+  </div>
+  <div class="cam-read" id="cam-read" aria-live="polite"></div>
+</figure>
+<div id="sources" aria-hidden="true"></div>
+
+<div class="wu-body">
+  <aside class="outline" aria-label="Sections">
+    <div class="outline-head">README.md</div>
+    <ol id="outline"></ol>
+  </aside>
+
+  <article class="prose">
+    <div class="tags"><span>javascript</span><span>canvas</span><span>getusermedia</span><span>mediarecorder</span><span>computer-vision</span></div>
+
+    <h2>How It Works</h2>
+    <p>The homepage scenes are drawn by hand, cell by cell. ASCII Cam does the same thing from real pixels. Each frame of the source is drawn small onto an offscreen canvas, one pixel per character cell, and each pixel's brightness picks a glyph.</p>
+    <ul>
+      <li><strong>Downsample:</strong> the frame is drawn at the grid size (for example 120&times;45). Rows are about half as many as columns because a monospace cell is roughly 0.6 as wide as it is tall.</li>
+      <li><strong>Luminance:</strong> each cell becomes <code>0.2126r + 0.7152g + 0.0722b</code>.</li>
+      <li><strong>Auto-levels:</strong> the 2nd and 98th brightness percentiles are stretched to the full ramp and eased over time, so a dim webcam still uses every glyph without flickering.</li>
+      <li><strong>Ramp + tone:</strong> brightness indexes into the glyph ramp and also picks one of four colors (faint, muted, foreground, accent), the same tones the homepage scenes use.</li>
+    </ul>
+    <p>In light mode the mapping flips automatically, so dense glyphs always stand for the parts of the picture that would be ink.</p>
+
+    <h2>Edges Mode</h2>
+    <p>Edges mode runs a Sobel filter over the brightness grid. Where the gradient is strong, the cell becomes a line glyph (<code>- / | \</code>) that follows the edge's direction, corrected for the tall cell shape. Everything else falls back to a dim brightness fill. The result looks closer to the hand-drawn scenes than a plain brightness ramp.</p>
+
+    <h2>Recording</h2>
+    <p>Recording redraws every ASCII frame onto a canvas in the current theme's colors, captures it with <code>canvas.captureStream()</code>, and encodes it with <code>MediaRecorder</code>. Chrome and Firefox save <code>.webm</code>; Safari saves <code>.mp4</code>. When the source is a video file in Chrome, its audio is mixed into the recording. A file recording stops on its own when the clip ends.</p>
+
+    <h2>Privacy</h2>
+    <p>There is no server. Files are read through a local object URL, the webcam stream is only ever drawn to a canvas, and recordings are assembled in memory and handed straight back to you as a download. Close the tab and it's gone.</p>
+
+    <hr>
+    <p><a href="index.html#projects">&larr; :q back to projects</a></p>
+  </article>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Tyler Thompson - Davidson College &rsquo;28</span>
+    <span>// cs &amp; mathematics</span>
+  </div>
+</footer>
+
+<div class="bar" id="bar">
+  <span class="mode" id="bar-mode">NORMAL</span>
+  <span class="seg grow" id="bar-main"><span id="bar-path">~/projects/ascii-cam/README.md</span></span>
+  <span class="seg right hint"><kbd>space</kbd>&nbsp;play &middot; <kbd>o</kbd>&nbsp;open &middot; <kbd>c</kbd>&nbsp;cam &middot; <kbd>e</kbd>&nbsp;edges &middot; <kbd>w</kbd>&nbsp;rec &middot;&nbsp;<kbd>:q</kbd>&nbsp;back</span>
+  <span class="seg right pct" id="bar-pct">Top</span>
+  <button type="button" id="theme-btn" aria-label="Toggle light and dark theme">:theme</button>
+</div>
+
+<script src="ascii.js"></script>
+<script src="writeup.js"></script>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const rand = s => s[Math.floor(Math.random() * s.length)];
+  const GLYPHS = '░▒▓/\\<>+=*#%&@$0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const RAMP_NAMES = Object.keys(AsciiCam.RAMPS);
+  const fmt = s => isFinite(s) ? `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}` : '0:00';
+
+  const pre = $('out'), stage = $('stage'), sources = $('sources');
+  const readEl = $('cam-read'), bar = $('bar'), barMode = $('bar-mode');
+  const sampler = AsciiCam.createSampler();
+  const out = { ch: [], tone: new Uint8Array(0) };
+  const S = { cols: window.innerWidth < 640 ? 72 : 120, mode: 'luma', ramp: 'classic', contrast: 1, invert: false, mirror: false };
+  let ASPECT = 0.6;              // cell width / height (line-height = font-size)
+  let src = null, rows = 0, dirty = true, dissolve = 0, frames = 0, rec = null;
+
+  const light = () => document.documentElement.dataset.theme === 'light';
+  const playing = () => !!src && (src.kind === 'file' ? !src.el.paused : src.kind !== 'image' && !src.frozen);
+
+  /* ---------- MESSAGES + STATS ---------- */
+  let msgUntil = 0, fpsN = 0, fpsT = 0, fps = 0;
+  function say(text) {
+    readEl.textContent = text;
+    readEl.classList.add('msg');
+    msgUntil = performance.now() + 3200;
+  }
+  function stats(now) {
+    if (now < msgUntil) return;
+    readEl.classList.remove('msg');
+    if (!src) { readEl.textContent = ''; return; }
+    const state = rec ? `REC ${fmt((now - rec.t0) / 1000)}` : playing() ? `${fps}fps` : 'paused';
+    readEl.textContent = `frame ${String(frames).padStart(4, '0')} · ${S.cols}×${rows} · ${state} · ${S.mode} · ${S.ramp}`;
+    $('st-grid').textContent = `${S.cols}×${rows}`;
+    $('st-fps').textContent = playing() ? fps : '-';
+    $('st-mode').textContent = S.mode;
+    $('st-ramp').textContent = S.ramp;
+    $('st-live').textContent = rec ? 'rec' : playing() ? 'live' : 'paused';
+    if (rec) barMode.textContent = 'REC';
+  }
+
+  /* ---------- LAYOUT: rows follow the source's shape; font size fits the stage ---------- */
+  function layout() {
+    if (!src) return;
+    const w = src.w(), h = src.h();
+    if (!w || !h) return;
+    rows = Math.max(8, Math.round(S.cols * ASPECT * h / w));
+    const n = S.cols * rows;
+    if (out.tone.length !== n) { out.ch = new Array(n).fill(' '); out.tone = new Uint8Array(n); }
+    const maxH = Math.max(240, window.innerHeight * 0.68);
+    const fs = Math.min((stage.clientWidth - 24) / (S.cols * ASPECT), maxH / rows);
+    pre.style.fontSize = fs + 'px';
+    pre.style.lineHeight = fs + 'px';
+    pre.style.width = `${S.cols}ch`;
+    pre.style.height = rows * fs + 'px';
+    dirty = true;
+  }
+
+  /* ---------- SOURCES ---------- */
+  function setSource(s) {
+    if (rec) stopRec();
+    if (src && src.stop) src.stop();
+    src = s;
+    sampler.reset();
+    S.mirror = s.kind === 'cam';
+    $('mirror').checked = S.mirror;
+    $('cam-name').textContent = s.name;
+    $('st-src').textContent = s.kind;
+    $('seek-row').hidden = s.kind !== 'file';
+    dissolve = reduceMotion ? 0 : 0.35;
+    frames = 0;
+    layout();
+  }
+
+  // procedural demo: a synthwave sun, a checker floor rushing at the camera, and a bouncing ball
+  function makeDemo() {
+    const W = 640, H = 360, HZ = 170;
+    const c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    const g = c.getContext('2d');
+    let t = 0, last = performance.now();
+    function draw() {
+      g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
+      const sky = g.createLinearGradient(0, 0, 0, HZ);
+      sky.addColorStop(0, '#000'); sky.addColorStop(1, '#2a2a2a');
+      g.fillStyle = sky; g.fillRect(0, 0, W, HZ);
+      // sun with scanline gaps
+      const sun = g.createLinearGradient(0, HZ - 120, 0, HZ);
+      sun.addColorStop(0, '#fff'); sun.addColorStop(1, '#555');
+      g.save();
+      g.beginPath(); g.arc(W / 2, HZ, 120, Math.PI, 0); g.clip();
+      g.fillStyle = sun; g.fillRect(W / 2 - 120, HZ - 120, 240, 120);
+      g.fillStyle = '#000';
+      for (let k = 0; k < 6; k++) { const y = HZ - 10 - k * 15 - (t * 12) % 15; g.fillRect(W / 2 - 120, y, 240, 2 + (5 - k) * 0.8); }
+      g.restore();
+      // floor
+      for (let y = HZ; y < H; y += 2) {
+        const d = y - HZ + 1, z = 2400 / d;
+        const row = Math.floor(z / 6 + t * 2.5) & 1;
+        const tw = 2400 / z, ox = W / 2 - Math.sin(t * 0.7) * 8 * 400 / z;
+        const fade = Math.min(1, d / 120);
+        if (tw < 3) { g.fillStyle = `rgb(${60 * fade | 0},${60 * fade | 0},${60 * fade | 0})`; g.fillRect(0, y, W, 2); continue; }
+        let k = Math.floor(-ox / tw) - 1;
+        for (let x = ox + k * tw; x < W; x += tw, k++) {
+          const v = (((k & 1) ^ row) ? 40 + 190 * fade : 14) | 0;
+          g.fillStyle = `rgb(${v},${v},${v})`;
+          g.fillRect(x, y, tw + 1, 2);
+        }
+      }
+      // ball + shadow
+      const bx = W / 2 + Math.sin(t * 1.1) * 190, hop = Math.abs(Math.sin(t * 2.4));
+      const by = HZ + 70 - 46 - hop * 110, r = 46;
+      g.fillStyle = `rgba(0,0,0,${0.75 - hop * 0.4})`;
+      g.beginPath(); g.ellipse(bx, HZ + 72, r * (1.1 - hop * 0.3), 9, 0, 0, Math.PI * 2); g.fill();
+      const ball = g.createRadialGradient(bx - r * 0.35, by - r * 0.4, r * 0.08, bx, by, r);
+      ball.addColorStop(0, '#fff'); ball.addColorStop(0.4, '#aaa'); ball.addColorStop(1, '#151515');
+      g.fillStyle = ball;
+      g.beginPath(); g.arc(bx, by, r, 0, Math.PI * 2); g.fill();
+    }
+    draw();
+    return {
+      kind: 'demo', name: 'demo.canvas', el: c, w: () => W, h: () => H, frozen: false,
+      update(now) {
+        if (!this.frozen) t += Math.min(0.1, (now - last) / 1000);
+        last = now;
+        if (!this.frozen) draw();
+      },
+    };
+  }
+
+  function useFile(file) {
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    if (file.type.startsWith('image/')) {
+      const img = new Image();
+      img.onload = () => setSource({ kind: 'image', name: file.name, el: img, w: () => img.naturalWidth, h: () => img.naturalHeight, stop: () => URL.revokeObjectURL(url) });
+      img.onerror = () => { URL.revokeObjectURL(url); say(`can't read ${file.name}`); };
+      img.src = url;
+      return;
+    }
+    const v = document.createElement('video');
+    v.playsInline = true; v.loop = true; v.preload = 'auto';
+    sources.appendChild(v);
+    v.addEventListener('loadedmetadata', () => {
+      setSource({
+        kind: 'file', name: file.name, el: v, w: () => v.videoWidth, h: () => v.videoHeight,
+        stop() { v.pause(); v.removeAttribute('src'); v.load(); v.remove(); URL.revokeObjectURL(url); },
+      });
+      v.play().catch(() => { v.muted = true; v.play().catch(() => {}); say('audio autoplay blocked · press m to unmute'); });
+    }, { once: true });
+    v.addEventListener('error', () => { v.remove(); URL.revokeObjectURL(url); say(`this browser can't decode ${file.name}`); }, { once: true });
+    v.addEventListener('seeked', () => { dirty = true; });
+    v.addEventListener('ended', () => { if (rec) { stopRec(); say('clip ended · recording saved'); } });
+    v.src = url;
+  }
+
+  async function useCam() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { say('no camera access here (needs https)'); return; }
+    say('asking for the camera…');
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+      const v = document.createElement('video');
+      v.muted = true; v.playsInline = true; v.srcObject = stream;
+      sources.appendChild(v);
+      await v.play();
+      setSource({
+        kind: 'cam', name: stream.getVideoTracks()[0].label || 'webcam', el: v, frozen: false,
+        w: () => v.videoWidth, h: () => v.videoHeight,
+        stop() { stream.getTracks().forEach(t => t.stop()); v.srcObject = null; v.remove(); },
+      });
+      say('webcam live · frames stay in this tab');
+    } catch (e) {
+      say(e.name === 'NotAllowedError' ? 'camera permission denied' : `camera unavailable (${e.name})`);
+    }
+  }
+
+  function togglePlay() {
+    if (!src) return;
+    if (src.kind === 'file') { if (src.el.paused) src.el.play(); else src.el.pause(); }
+    else if (src.kind !== 'image') src.frozen = !src.frozen;
+    dirty = true;
+  }
+
+  /* ---------- RECORDING ---------- */
+  function startRec() {
+    if (!src) return;
+    if (!window.MediaRecorder || !HTMLCanvasElement.prototype.captureStream) { say('recording isn\'t supported in this browser'); return; }
+    const type = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm', 'video/mp4'].find(t => MediaRecorder.isTypeSupported(t));
+    if (!type) { say('no supported recording format'); return; }
+    const px = Math.max(6, Math.min(20, Math.round(1280 / (S.cols * ASPECT))));
+    const cell = { h: px, font: `${px}px "JetBrains Mono", ui-monospace, Menlo, monospace` };
+    const c = document.createElement('canvas');
+    const ctx = c.getContext('2d');
+    ctx.font = cell.font;
+    cell.w = ctx.measureText('M').width;
+    c.width = Math.ceil(S.cols * cell.w / 2) * 2;
+    c.height = Math.ceil(rows * cell.h / 2) * 2;
+    const css = getComputedStyle(document.documentElement);
+    const colors = ['--bg', '--faint', '--muted', '--fg', '--accent'].map(v => css.getPropertyValue(v).trim());
+    AsciiCam.paint(ctx, out, S.cols, rows, cell, colors);
+
+    const stream = c.captureStream(30);
+    if (src.kind === 'file' && src.el.captureStream && !src.el.muted) {
+      try { src.el.captureStream().getAudioTracks().forEach(t => stream.addTrack(t)); } catch (e) {}
+    }
+    const mr = new MediaRecorder(stream, { mimeType: type, videoBitsPerSecond: 6e6 });
+    const chunks = [];
+    const ext = type.includes('mp4') ? 'mp4' : 'webm';
+    mr.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+    mr.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      const blob = new Blob(chunks, { type: mr.mimeType });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `ascii-cam-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.${ext}`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+      say(`saved ${a.download} · ${(blob.size / 1e6).toFixed(1)} MB`);
+    };
+    mr.start(250);
+    rec = { mr, ctx, cell, colors, t0: performance.now() };
+    if (src.kind === 'file') { src.el.loop = false; if (src.el.paused) src.el.play(); }
+    $('rec').innerHTML = '&#9632; stop';
+    $('cols').disabled = true;
+    bar.classList.add('rec-mode');
+    barMode.textContent = 'REC';
+  }
+  function stopRec() {
+    if (!rec) return;
+    rec.mr.stop();
+    rec = null;
+    if (src && src.kind === 'file') src.el.loop = true;
+    $('rec').innerHTML = '&#9679; rec';
+    $('cols').disabled = false;
+    bar.classList.remove('rec-mode');
+    barMode.textContent = 'NORMAL';
+  }
+  const toggleRec = () => (rec ? stopRec() : startRec());
+
+  async function yank() {
+    let text = '';
+    for (let r = 0; r < rows; r++) text += out.ch.slice(r * S.cols, (r + 1) * S.cols).join('').replace(/\s+$/, '') + '\n';
+    try { await navigator.clipboard.writeText(text); say(`yanked ${S.cols}×${rows} frame to the clipboard`); }
+    catch (e) { say('clipboard blocked by the browser'); }
+  }
+
+  /* ---------- RENDER LOOP ---------- */
+  let lastT = 0;
+  function tick(now) {
+    requestAnimationFrame(tick);
+    if (!src || document.hidden || now - lastT < 33) return;
+    const dt = Math.min(0.1, (now - lastT) / 1000);
+    lastT = now;
+    if (src.update) src.update(now);
+    if (src.kind === 'file' && !seeking) {
+      const d = src.el.duration;
+      $('seek').value = d ? src.el.currentTime / d * 1000 : 0;
+      $('time').textContent = `${fmt(src.el.currentTime)} / ${fmt(d)}`;
+      $('play').textContent = src.el.paused ? 'play' : 'pause';
+    }
+    if (now - fpsT > 500) { fps = Math.round(fpsN * 1000 / (now - fpsT)); fpsN = 0; fpsT = now; stats(now); }
+    if (!playing() && !dirty && dissolve <= 0) return;
+    const w = src.w(), h = src.h();
+    if (!w || !h || (src.el.readyState !== undefined && src.el.readyState < 2)) return;
+    if (!rows) layout();
+
+    sampler.sample(src.el, w, h, S.cols, rows, out, {
+      cellAspect: ASPECT, ramp: AsciiCam.RAMPS[S.ramp], mode: S.mode,
+      contrast: S.contrast, invert: S.invert !== light(), mirror: S.mirror,
+    });
+    dirty = false;
+    if (dissolve > 0) {
+      dissolve = Math.max(0, dissolve - dt);
+      for (let o = 0; o < out.ch.length; o++) {
+        if ((out.ch[o] !== ' ' || Math.random() < 0.25) && Math.random() < dissolve * 2.5) { out.ch[o] = rand(GLYPHS); out.tone[o] = 0; }
+      }
+    }
+    pre.innerHTML = AsciiCam.toHTML(out, S.cols, rows);
+    if (rec) AsciiCam.paint(rec.ctx, out, S.cols, rows, rec.cell, rec.colors);
+    frames++; fpsN++;
+  }
+
+  /* ---------- CONTROLS ---------- */
+  const set = (key, v) => { S[key] = v; dirty = true; };
+  function setCols(v) {
+    if (rec) return;
+    S.cols = Math.max(40, Math.min(200, v));
+    $('cols').value = S.cols;
+    $('cols-v').textContent = S.cols;
+    layout();
+  }
+  function setContrast(v) {
+    set('contrast', Math.round(Math.max(0.5, Math.min(2.5, v)) * 10) / 10);
+    $('contrast').value = S.contrast;
+    $('contrast-v').textContent = S.contrast.toFixed(1);
+  }
+  const setMode = v => { set('mode', v); $('mode').value = v; };
+  const setRamp = v => { set('ramp', v); $('ramp').value = v; };
+
+  $('file').addEventListener('change', e => { useFile(e.target.files[0]); e.target.value = ''; });
+  $('open-file').addEventListener('click', () => $('file').click());
+  $('use-cam').addEventListener('click', useCam);
+  $('use-demo').addEventListener('click', () => setSource(makeDemo()));
+  $('play').addEventListener('click', togglePlay);
+  $('rec').addEventListener('click', toggleRec);
+  $('yank').addEventListener('click', yank);
+  $('cols').addEventListener('input', e => setCols(+e.target.value));
+  $('contrast').addEventListener('input', e => setContrast(+e.target.value));
+  $('mode').addEventListener('change', e => setMode(e.target.value));
+  $('ramp').addEventListener('change', e => setRamp(e.target.value));
+  $('invert').addEventListener('change', e => set('invert', e.target.checked));
+  $('mirror').addEventListener('change', e => set('mirror', e.target.checked));
+
+  let seeking = false;
+  $('seek').addEventListener('input', e => {
+    seeking = true;
+    if (src && src.kind === 'file' && src.el.duration) src.el.currentTime = e.target.value / 1000 * src.el.duration;
+  });
+  $('seek').addEventListener('change', () => { seeking = false; });
+
+  // drag and drop anywhere on the page
+  let dragDepth = 0;
+  window.addEventListener('dragenter', e => { e.preventDefault(); dragDepth++; stage.classList.add('drag'); });
+  window.addEventListener('dragleave', () => { if (--dragDepth <= 0) { dragDepth = 0; stage.classList.remove('drag'); } });
+  window.addEventListener('dragover', e => e.preventDefault());
+  window.addEventListener('drop', e => {
+    e.preventDefault();
+    dragDepth = 0;
+    stage.classList.remove('drag');
+    const f = e.dataTransfer.files[0];
+    if (f && /^(video|image)\//.test(f.type)) useFile(f);
+    else if (f) say(`${f.name} isn't a video or image`);
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const tag = document.activeElement.tagName;
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag)) return;
+    if (e.key === ' ' && tag === 'BUTTON') return;
+    const step = k => { const i = RAMP_NAMES.indexOf(S.ramp); return RAMP_NAMES[(i + k + RAMP_NAMES.length) % RAMP_NAMES.length]; };
+    switch (e.key) {
+      case ' ': e.preventDefault(); togglePlay(); break;
+      case 'o': $('file').click(); break;
+      case 'c': useCam(); break;
+      case 'd': setSource(makeDemo()); break;
+      case 'e': setMode(S.mode === 'luma' ? 'edges' : 'luma'); break;
+      case 'r': setRamp(step(1)); break;
+      case 'i': $('invert').checked = !S.invert; set('invert', !S.invert); break;
+      case 'f': $('mirror').checked = !S.mirror; set('mirror', !S.mirror); break;
+      case 'm': if (src && src.kind === 'file') { src.el.muted = !src.el.muted; say(src.el.muted ? 'muted' : 'sound on'); } break;
+      case 'w': toggleRec(); break;
+      case 'y': yank(); break;
+      case '-': setCols(S.cols - 8); break;
+      case '=': case '+': setCols(S.cols + 8); break;
+      case ',': setContrast(S.contrast - 0.1); break;
+      case '.': setContrast(S.contrast + 0.1); break;
+      case 'ArrowLeft': case 'ArrowRight':
+        if (src && src.kind === 'file') { e.preventDefault(); src.el.currentTime += e.key === 'ArrowLeft' ? -5 : 5; }
+        break;
+    }
+  });
+
+  // theme flips which end of the ramp counts as "ink"
+  new MutationObserver(() => { dirty = true; }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  window.addEventListener('resize', layout);
+
+  /* ---------- BOOT ---------- */
+  setCols(S.cols);
+  function measure() {
+    const s = document.createElement('span');
+    s.style.cssText = 'position:absolute;visibility:hidden;white-space:pre;font-family:var(--mono);font-size:100px';
+    s.textContent = 'M'.repeat(50);
+    document.body.appendChild(s);
+    ASPECT = s.getBoundingClientRect().width / 5000 || 0.6;
+    s.remove();
+    layout();
+  }
+  setSource(makeDemo());
+  measure();
+  if (document.fonts) document.fonts.ready.then(measure);
+  requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
