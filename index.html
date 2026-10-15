@@ -58,10 +58,17 @@
     font-size: 0.68rem; color: var(--muted); line-height: 1.6;
   }
   .scene .cap-top { display: flex; justify-content: space-between; gap: 1rem; }
-  .scene #cap-tag { color: var(--accent); }
-  .scene #cap-link { color: var(--fg); text-decoration: none; }
+  .scene #cap-title { color: var(--accent); }
+  .scene #cap-link { color: var(--fg); text-decoration: none; white-space: nowrap; }
   .scene #cap-link:hover { color: var(--accent); }
-  .scene #cap-read { color: var(--muted); white-space: pre; min-height: 1.6em; }
+  .scene #cap-desc { width: 0; min-width: 100%; margin: 0.15rem 0 0.35rem; color: var(--muted); min-height: 3.2em; }
+  .scene .cap-bot { display: flex; justify-content: space-between; gap: 1rem; }
+  .scene #cap-read { color: var(--faint); white-space: pre; min-height: 1.6em; overflow: hidden; text-overflow: ellipsis; }
+  .scene #cap-shuffle {
+    font: inherit; color: var(--muted); background: none; border: 0; padding: 0;
+    cursor: pointer; white-space: nowrap;
+  }
+  .scene #cap-shuffle:hover { color: var(--accent); }
 
   /* EDITOR */
   .editor {
@@ -214,13 +221,14 @@
       <figure class="scene">
         <pre id="scene" aria-hidden="true"></pre>
         <figcaption>
-          <div class="cap-top"><span id="cap-tag" aria-hidden="true"></span><a id="cap-link" href="#about">open &nearr;</a></div>
-          <div id="cap-read" aria-hidden="true"></div>
+          <div class="cap-top"><span id="cap-title"></span><a id="cap-link" href="#about">open &nearr;</a></div>
+          <p id="cap-desc"></p>
+          <div class="cap-bot"><span id="cap-read" aria-hidden="true"></span><button type="button" id="cap-shuffle" aria-label="Show another scene">&#x21bb; shuffle</button></div>
         </figcaption>
       </figure>
     </div>
 
-    <div class="editor" role="region" aria-label="Code editor with one file per project">
+    <div class="editor" role="region" aria-label="Code editor">
       <div class="editor-tabs" id="ed-tabs"></div>
       <div class="editor-body" id="editor-body" aria-hidden="true"></div>
       <div class="statusline" id="ed-status" aria-hidden="true">
@@ -240,8 +248,8 @@
     <div class="prompt"><span class="who">tyler@davidson</span> <span class="path">~</span><span class="cmd">whoami</span></div>
     <div class="about-grid out">
       <div class="about-text">
-        <p>I&rsquo;m a sophomore at <b>Davidson College</b> studying Computer Science and Mathematics (GPA: 3.83). I&rsquo;m interested in machine learning, computer vision, and building software that solves real problems.</p>
-        <p>This past summer I studied machine learning in practice at the <b>London School of Economics</b>, where I built and evaluated models across regression and clustering tasks. I also compete as a <b>Division I sprinter</b>, which has taught me a lot about discipline and how to perform under pressure.</p>
+        <p>I&rsquo;m a junior at <b>Davidson College</b> studying Computer Science and Mathematics (GPA: 3.83). I&rsquo;m interested in machine learning, computer vision, and building software that solves real problems.</p>
+        <p>I also compete as a <b>Division I sprinter</b>, which has taught me a lot about discipline and how to perform under pressure.</p>
         <p>This past summer I built digital infrastructure for an American industrial e-commerce startup and shipped a RAG-based AI assistant for a national trade association. I&rsquo;m now grading differential equations for the Davidson math department and actively exploring opportunities in AI and software development.</p>
       </div>
       <aside class="readout" aria-label="Quick facts">
@@ -386,12 +394,12 @@
   <span class="mode" id="bar-mode">NORMAL</span>
   <span class="seg grow" id="bar-main"><span id="bar-path">~/</span></span>
   <span class="seg right" id="showcmd" aria-hidden="true"></span>
-  <span class="seg right hint"><kbd>1</kbd>&ndash;<kbd>9</kbd>&nbsp;scenes &middot; <kbd>j</kbd>/<kbd>k</kbd>&nbsp;move &middot;&nbsp;<kbd>:</kbd>&nbsp;command</span>
+  <span class="seg right hint"><kbd>j</kbd>/<kbd>k</kbd>&nbsp;move &middot;&nbsp;<kbd>:</kbd>&nbsp;command</span>
   <span class="seg right pct" id="bar-pct">Top</span>
   <button type="button" id="theme-btn" aria-label="Toggle light and dark theme">:theme</button>
 </div>
 
-<!-- Editor files: one per scene. Plain text so nothing needs escaping. -->
+<!-- Editor file. Plain text so nothing needs escaping. -->
 <script type="text/plain" id="code-tyler">
 # tyler.py
 
@@ -407,124 +415,6 @@ class Tyler(Student):
         return "tythompson@davidson.edu"
     # open to internships, research & interesting projects
 </script>
-<script type="text/plain" id="code-hmma">
-// ingest.ts: NAAMM technical library -> pgvector
-import { VoyageAIClient } from "voyageai";
-import { createClient } from "@supabase/supabase-js";
-
-export async function ingest(doc: LibraryDoc) {
-  const chunks = chunk(doc.text, CHUNK_OPTS);
-  const { data } = await voyage.embed({ input: chunks, model: EMBED_MODEL });
-  await supabase.from("chunks").insert(
-    chunks.map((text, i) => ({ text, source: doc.id, embedding: data[i].embedding })),
-  );
-}
-// every answer cites the pages it came from
-</script>
-<script type="text/plain" id="code-cards">
-# detection.py: find cards in a frame
-def detection(contours, gray_image):
-    cards = []
-    for contour in contours:
-        # Ramer: simplify contour to corners; 4 corners ~ a card
-        approx = cv.approxPolyDP(contour, 0.03 * cv.arcLength(contour, True), True)
-        if len(approx) == 4:
-            area = cv.contourArea(contour)
-            if area > 400:
-                cards.append(approx)
-
-    warped_cards = [warp_card(gray_image, c) for c in cards]
-    return template_matching(warped_cards), cards
-</script>
-<script type="text/plain" id="code-kmeans">
-# kmeans.py: clustering Dow Jones stocks by dividend behavior
-features = ['days_to_next_dividend', 'percent_return_next_dividend']
-X_kmeans = X[features].copy()
-
-# Perform K-means clustering with 3 clusters
-kmeans_2d = KMeans(n_clusters = 3, random_state = 123, n_init='auto').fit(X_kmeans)
-
-kmeans_labels_2d = kmeans_2d.labels_
-kmeans_centers_2d = kmeans_2d.cluster_centers_
-
-gmm = GaussianMixture(n_components=3, random_state=123)
-gmm.fit(X_kmeans)
-</script>
-<script type="text/plain" id="code-solar">
-<!-- scene.html: find gog, the lost alien dog -->
-<a-scene>
-  <a-sphere id="sun" radius="5" color="#FDB813"></a-sphere>
-  <a-entity animation="property: rotation; to: 0 360 0; loop: true; dur: 36500">
-    <a-sphere id="earth" position="20 0 0" radius="1"></a-sphere>
-  </a-entity>
-  <!-- gog spawns somewhere random and barks louder as you close in -->
-  <a-image id="gog" src="#alien-dog" random-position></a-image>
-  <a-sound src="#bark" autoplay="true" loop="true"
-           distance-model="inverse" ref-distance="3"></a-sound>
-  <a-camera wasd-controls="fly: true"></a-camera>
-</a-scene>
-</script>
-<script type="text/plain" id="code-flight">
-// map.js: is it rude? perceptions by census region
-const projection = d3.geoAlbersUsa().fitSize([width, height], states);
-const color = d3.scaleSequential(d3.interpolateOrRd).domain([0, 1]);
-
-svg.selectAll("path")
-  .data(states.features)
-  .join("path")
-    .attr("d", d3.geoPath(projection))
-    .attr("fill", d => color(rudeShare.get(regionOf(d))))
-  .append("title")
-    .text(d => `${regionOf(d)}: ${pct(rudeShare.get(regionOf(d)))}`);
-</script>
-<script type="text/plain" id="code-slope">
-# grade.py: MAT 235 slope field, sketched for feedback
-import numpy as np
-
-def f(x, y):
-    return np.sin(x) - 0.4 * y     # y' = sin(x) - 0.4y
-
-def euler(y0, h=0.05, steps=240):
-    xs, ys = [0.0], [y0]
-    for _ in range(steps):
-        ys.append(ys[-1] + h * f(xs[-1], ys[-1]))
-        xs.append(xs[-1] + h)
-    return np.array(xs), np.array(ys)
-</script>
-<script type="text/plain" id="code-sprint">
-# sprint.py: a toy 100m model (not my actual splits)
-import math
-
-V_MAX, TAU = 11.5, 1.3      # top speed m/s, time constant s
-
-def velocity(t):
-    return V_MAX * (1 - math.exp(-t / TAU))
-
-def distance(t):
-    return V_MAX * (t - TAU * (1 - math.exp(-t / TAU)))
-
-t = 0.0
-while distance(t) < 100: t += 0.01
-print(f"100m in {t:.2f}s")
-</script>
-
-<script type="text/plain" id="code-cam">
-// render.js: every frame becomes a grid of glyphs, all in-browser
-const RAMP = " .,-~:;=!*#$@";
-
-function frame(video, cols, rows) {
-  ctx.drawImage(video, 0, 0, cols, rows);        // one pixel per cell
-  const px = ctx.getImageData(0, 0, cols, rows).data;
-  let out = "";
-  for (let i = 0; i < cols * rows; i++) {
-    const y = (0.2126 * px[i * 4] + 0.7152 * px[i * 4 + 1] + 0.0722 * px[i * 4 + 2]) / 255;
-    out += RAMP[Math.round(y * (RAMP.length - 1))];
-    if (i % cols === cols - 1) out += "\n";
-  }
-  return out;   // frames never leave the tab
-}
-</script>
-
 <script src="ascii.js"></script>
 <script>
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1115,17 +1005,32 @@ function camScene() {
   };
 }
 
-/* ---------- FILES: editor buffer + scene ---------- */
+
+/* ---------- FILE: editor buffer ---------- */
 const FILES = [
-  { tab: 'tyler.py', path: '~/tyler/tyler.py', lang: 'python', code: 'tyler', make: torusScene, link: '#about' },
-  { tab: 'ingest.ts', path: '~/projects/hmma-direct/ingest.ts', lang: 'ts', code: 'hmma', make: ragScene, link: 'https://askhmma.naamm.org' },
-  { tab: 'detection.py', path: '~/projects/blackjack/detection.py', lang: 'python', code: 'cards', make: cardScene, link: 'https://github.com/tylerthompson17/Image-Processing-Blackjack-Card-Counting-Project-Public' },
-  { tab: 'kmeans.py', path: '~/projects/ml-stocks/kmeans.py', lang: 'python', code: 'kmeans', make: kmeansScene, link: 'https://github.com/tylerthompson17/ml-stock-market-analysis' },
-  { tab: 'scene.html', path: '~/projects/solar-vr/scene.html', lang: 'html', code: 'solar', make: solarScene, link: 'ds3.html' },
-  { tab: 'map.js', path: '~/projects/flight-viz/map.js', lang: 'js', code: 'flight', make: flightScene, link: 'ds2.html' },
-  { tab: 'grade.py', path: '~/davidson/mat235/grade.py', lang: 'python', code: 'slope', make: slopeScene, link: '#experience' },
-  { tab: 'sprint.py', path: '~/track/sprint.py', lang: 'python', code: 'sprint', make: sprintScene, link: '#about' },
-  { tab: 'render.js', path: '~/projects/ascii-cam/render.js', lang: 'js', code: 'cam', make: camScene, link: 'ascii-cam.html' },
+  { tab: 'tyler.py', path: '~/tyler/tyler.py', lang: 'python', code: 'tyler' },
+];
+
+/* ---------- SCENES: one is picked at random on load ---------- */
+const SCENES = [
+  { make: torusScene, link: '#about', title: 'ASCII Torus',
+    desc: 'The classic spinning donut, drawn in text. Move your mouse to steer it.' },
+  { make: ragScene, link: 'https://askhmma.naamm.org', title: 'HMMA Direct',
+    desc: 'RAG assistant for a trade association: the top 3 matching pages answer each question.' },
+  { make: cardScene, link: 'https://github.com/tylerthompson17/Image-Processing-Blackjack-Card-Counting-Project-Public', title: 'Blackjack Card Detection',
+    desc: 'Detects and classifies playing cards with OpenCV, then keeps a Hi-Lo count.' },
+  { make: kmeansScene, link: 'https://github.com/tylerthompson17/ml-stock-market-analysis', title: 'ML Stock Market Analysis',
+    desc: 'Clusters Dow Jones stocks by volatility and dividend behavior.' },
+  { make: solarScene, link: 'ds3.html', title: 'Solar System Explorer',
+    desc: 'A-Frame VR game: fly through the solar system to find gog, the lost alien dog.' },
+  { make: flightScene, link: 'ds2.html', title: 'Flight Etiquette Data Viz',
+    desc: 'FiveThirtyEight\u2019s flight etiquette survey, mapped by US census region in D3.' },
+  { make: slopeScene, link: '#experience', title: 'Differential Equations',
+    desc: 'Slope fields from the Davidson math course I grade for.' },
+  { make: sprintScene, link: '#about', title: 'Division I Sprinting',
+    desc: 'A 100m race, simulated from a sprinter\u2019s velocity curve.' },
+  { make: camScene, link: 'ascii-cam.html', title: 'ASCII Cam',
+    desc: 'Turns your webcam into live ASCII art, right in the browser.' },
 ];
 
 const KEYWORDS = {
@@ -1159,18 +1064,21 @@ FILES.forEach(f => {
 
 /* ---------- SCENE ENGINE ---------- */
 const sceneEl = document.getElementById('scene');
-const capTag = document.getElementById('cap-tag');
+const capTitle = document.getElementById('cap-title');
+const capDesc = document.getElementById('cap-desc');
 const capRead = document.getElementById('cap-read');
 const capLink = document.getElementById('cap-link');
-let active = null, sceneT = 0, dissolve = 0, sceneVisible = true, lastFrame = 0;
+let sceneIdx = -1, active = null, sceneT = 0, dissolve = 0, sceneVisible = true, lastFrame = 0;
 
 function setScene(i) {
-  const f = FILES[i];
+  const f = SCENES[i];
+  sceneIdx = i;
   if (active && active.stop) active.stop();
   active = f.make();
   sceneT = 0;
   dissolve = reduceMotion ? 0 : 0.35;
-  capTag.textContent = `['${active.tag}']`;
+  capTitle.textContent = f.title;
+  capDesc.textContent = f.desc;
   capLink.href = f.link;
   const external = f.link.startsWith('http');
   capLink.target = external ? '_blank' : '';
@@ -1216,6 +1124,13 @@ if (!reduceMotion) {
   sceneEl.addEventListener('mouseleave', () => { ptr.inside = false; });
   sceneEl.addEventListener('click', () => active && active.poke && active.poke());
 }
+
+function shuffleScene() {
+  let i;
+  do i = Math.floor(Math.random() * SCENES.length); while (i === sceneIdx);
+  setScene(i);
+}
+document.getElementById('cap-shuffle').addEventListener('click', shuffleScene);
 
 /* ---------- EDITOR ---------- */
 const nameEl = document.getElementById('name');
@@ -1284,11 +1199,11 @@ async function openScene(i, { boot = false } = {}) {
   edStatus.classList.remove('off');
   edPath.textContent = f.path;
   edLang.textContent = f.lang;
-  setScene(i);
+  if (!active) shuffleScene();
   edCmd.textContent = '';
   const rows = buildRows(f.lines);
   const last = rows.length - 1;
-  const hint = `-- ${i + 1}/${FILES.length} -- click a tab or press 1–${FILES.length}`;
+  const hint = `"${f.tab}" ${rows.length}L written`;
   if (reduceMotion) {
     placeCursor(rows, last);
     edPos.textContent = `${rows.length}:${lineLen(f.lines[last]) + 1} All`;
@@ -1313,7 +1228,7 @@ async function openScene(i, { boot = false } = {}) {
 }
 
 /* ---------- BOOT ---------- */
-const first = Math.floor(Math.random() * FILES.length);
+const first = 0;
 
 async function boot() {
   // 1. name resolves out of noise; the block cursor rides along, then hands off
@@ -1427,7 +1342,7 @@ function toggleTheme() {
 }
 document.getElementById('theme-btn').addEventListener('click', toggleTheme);
 
-/* ---------- KEYBOARD: 1–9 scenes, j/k sections, g/G, and :commands ---------- */
+/* ---------- KEYBOARD: j/k sections, g/G, and :commands ---------- */
 const bar = document.getElementById('bar');
 const barMode = document.getElementById('bar-mode');
 const barMain = document.getElementById('bar-main');
@@ -1442,9 +1357,6 @@ function stepSection(dir) {
   const cur = currentSection() || 'top';
   const idx = Math.max(0, Math.min(order.length - 1, order.indexOf(cur) + dir));
   goTo(order[idx]);
-}
-function stepScene(dir) {
-  openScene(((currentIdx < 0 ? first : currentIdx) + dir + FILES.length) % FILES.length);
 }
 function flash(text) {
   barMain.innerHTML = `<span class="msg">${esc(text)}</span>`;
@@ -1463,12 +1375,10 @@ const COMMANDS = {
   about: () => goTo('about'), projects: () => goTo('projects'),
   experience: () => goTo('experience'), contact: () => goTo('contact'),
   top: () => goTo('top'), q: () => flash('nice try. there is no escape from vim.'),
-  next: () => { goTo('top'); stepScene(1); },
-  prev: () => { goTo('top'); stepScene(-1); },
-  random: () => { goTo('top'); openScene(Math.floor(Math.random() * FILES.length)); },
+  shuffle: () => { goTo('top'); shuffleScene(); },
   github: () => window.open('https://github.com/tylerthompson17', '_blank', 'noopener'),
   email: () => { location.href = 'mailto:tythompson@davidson.edu'; },
-  help: () => flash('try: next prev random about projects experience contact github email theme'),
+  help: () => flash('try: shuffle about projects experience contact github email theme'),
 };
 
 function openCommand() {
@@ -1501,10 +1411,7 @@ document.addEventListener('keydown', e => {
     clearTimeout(showcmd._t);
     showcmd._t = setTimeout(() => { showBuf = ''; showcmd.textContent = ''; }, 1200);
   }
-  if (/^[1-9]$/.test(key)) { openScene(+key - 1); return; }
   switch (key) {
-    case ']': stepScene(1); break;
-    case '[': stepScene(-1); break;
     case 'j': stepSection(1); break;
     case 'k': stepSection(-1); break;
     case 'g': goTo('top'); break;
