@@ -282,3 +282,13 @@ footer .wrap { display: flex; justify-content: space-between; gap: 1rem; flex-wr
   .wu-body { grid-template-columns: minmax(0, 1fr); }
   .outline { display: none; }
 }
+
+/* RETRO TRANSITION (retro.js) */
+.retro-overlay { position: fixed; inset: 0; z-index: 1000; pointer-events: all; }
+.retro-overlay canvas { width: 100%; height: 100%; image-rendering: pixelated; display: block; }
+.retro-overlay::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    repeating-linear-gradient(to bottom, rgba(0,0,0,0.16) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.35));
+}
