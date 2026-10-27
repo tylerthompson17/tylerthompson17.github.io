@@ -9,6 +9,10 @@
   const TITLE = 1.45, CLOSE = 1.15, FADE = 2.6, LEAVE = 2.95;
   // the replay canvas's turf (tylernfl --replay-turf); its page opens on this colour with ?intro=retro
   const TURF = '#7f9577';
+  // a local copy of this site opens the local tylernfl dev server (port 4322), so its intro can be tried before it ships
+  const LIVE_NFL = 'https://tylerthompson17.github.io/tylernfl/';
+  const LOCAL_NFL = 'http://localhost:4322/tylernfl/';
+  const target = href => location.hostname === 'localhost' && href.startsWith(LIVE_NFL) ? LOCAL_NFL + href.slice(LIVE_NFL.length) : href;
 
   // 5x7 bitmap font, just the glyphs the title cards need
   const FONT = {
@@ -156,9 +160,9 @@
     if (document.querySelector('.retro-overlay')) { e.preventDefault(); return; }
     e.preventDefault();
     const hint = document.createElement('link');
-    hint.rel = 'prefetch'; hint.href = a.href;
+    hint.rel = 'prefetch'; hint.href = target(a.href);
     document.head.appendChild(hint);
-    play(a.href, a.dataset.retroTitle || 'Retro Replay', a.dataset.retroSub || 'Loading play');
+    play(target(a.href), a.dataset.retroTitle || 'Retro Replay', a.dataset.retroSub || 'Loading play');
   });
 
   // coming back via the back button restores the page from cache with the overlay still up
