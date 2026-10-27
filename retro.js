@@ -1,9 +1,14 @@
 // retro.js: links marked data-retro play a pixel-art drip-down transition before navigating.
 // Paint drips over the page in the site accent, then a striped football field drips over that,
-// and a CRT-style title card loads the play. data-retro-title / data-retro-sub set the card text.
+// and a CRT-style title card loads the play, then everything washes to plain turf and the page changes.
+// data-retro-title / data-retro-sub set the card text.
 (() => {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  // seconds: title card opens, closes (after TITLE), field washes to turf, then the page changes
+  const TITLE = 1.45, CLOSE = 1.15, FADE = 2.6, LEAVE = 2.95;
+  // the replay canvas's turf (tylernfl --replay-turf); its page opens on this colour with ?intro=retro
+  const TURF = '#7f9577';
 
   // 5x7 bitmap font, just the glyphs the title cards need
   const FONT = {
@@ -69,8 +74,8 @@
     };
     // each layer: when each column starts and how long it takes to reach the bottom
     const layers = [
-      { start: walk(cols, 0, 0.18), dur: walk(cols, 0.38, 0.6), color: () => accent, lit: '#f0a493' },
-      { start: walk(cols, 0.22, 0.42), dur: walk(cols, 0.42, 0.66), color: fieldColor, lit: '#a9bd9f' },
+      { start: walk(cols, 0, 0.26), dur: walk(cols, 0.55, 0.85), color: () => accent, lit: '#f0a493' },
+      { start: walk(cols, 0.32, 0.6), dur: walk(cols, 0.6, 0.92), color: fieldColor, lit: '#a9bd9f' },
     ];
     // a few columns shed a droplet that falls ahead of the sheet
     const drops = layers.map(() => Array.from({ length: cols }, () => Math.random() < 0.22));
@@ -99,13 +104,13 @@
       });
 
       // title card: a CRT line opens into a box once the field has mostly landed
-      const tc = t - 1.0;
-      if (tc > 0) {
+      const tc = t - TITLE;
+      if (tc > 0 && tc < CLOSE + 0.2) {
         const k = cols >= 190 ? 2 : 1;
         const tw = Math.max(textWidth(title, k), textWidth(sub, 1), 60);
         const bw = tw + 16, bh = 7 * k + 7 + 7 + 30;
         const bx = Math.round((cols - bw) / 2), by = Math.round((rows - bh) / 2);
-        const open = clamp(tc / 0.16, 0, 1);
+        const open = clamp(tc / 0.22, 0, 1) * (1 - clamp((tc - CLOSE) / 0.15, 0, 1));
         const vh = Math.max(1, Math.round(bh * open));
         const vy = by + Math.round((bh - vh) / 2);
         ctx.fillStyle = 'rgba(20,22,26,0.45)';
@@ -121,7 +126,7 @@
           y += 7 * k + 6;
           drawText(ctx, sub, Math.round((cols - textWidth(sub, 1)) / 2), y, 1, '#a9bd9f');
           y += 7 + 6;
-          const bar = bw - 16, fill = Math.floor(bar * clamp((tc - 0.16) / 0.55, 0, 1));
+          const bar = bw - 16, fill = Math.floor(bar * clamp((tc - 0.22) / 0.75, 0, 1));
           ctx.fillStyle = '#3a4038';
           ctx.fillRect(bx + 8, y, bar, 3);
           ctx.fillStyle = accent;
@@ -130,7 +135,16 @@
         }
       }
 
-      if (t > 1.85 && !navigated) { navigated = true; location.href = href; }
+      // the card switches off and the field washes to plain turf, the colour the replay page opens on
+      const wash = clamp((t - FADE) / (LEAVE - FADE), 0, 1);
+      if (wash > 0) {
+        ctx.globalAlpha = wash;
+        ctx.fillStyle = TURF;
+        ctx.fillRect(0, 0, cols, rows);
+        ctx.globalAlpha = 1;
+      }
+
+      if (t > LEAVE && !navigated) { navigated = true; location.href = href; }
       if (!navigated || t < 4) requestAnimationFrame(frame);
     })(t0);
   }
