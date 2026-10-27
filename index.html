@@ -53,7 +53,9 @@
   .scene pre b { font-weight: 400; color: var(--muted); }
   .scene pre i { font-style: normal; color: var(--fg); }
   .scene pre u { text-decoration: none; color: var(--accent); }
+  /* the caption never widens the figure: the ASCII grid alone sets its width */
   .scene figcaption {
+    width: 0; min-width: 100%;
     border-top: 1px solid var(--rule); padding-top: 0.4rem; margin-top: 0.4rem;
     font-size: 0.68rem; color: var(--muted); line-height: 1.6;
   }
@@ -61,9 +63,9 @@
   .scene #cap-title { color: var(--accent); }
   .scene #cap-link { color: var(--fg); text-decoration: none; white-space: nowrap; }
   .scene #cap-link:hover { color: var(--accent); }
-  .scene #cap-desc { width: 0; min-width: 100%; margin: 0.15rem 0 0.35rem; color: var(--muted); min-height: 3.2em; }
+  .scene #cap-desc { margin: 0.15rem 0 0.35rem; color: var(--muted); height: 3.2em; overflow: hidden; }
   .scene .cap-bot { display: flex; justify-content: space-between; gap: 1rem; }
-  .scene #cap-read { color: var(--faint); white-space: pre; min-height: 1.6em; overflow: hidden; text-overflow: ellipsis; }
+  .scene #cap-read { flex: 1; min-width: 0; color: var(--faint); white-space: pre; min-height: 1.6em; overflow: hidden; text-overflow: ellipsis; }
   .scene #cap-shuffle {
     font: inherit; color: var(--muted); background: none; border: 0; padding: 0;
     cursor: pointer; white-space: nowrap;
@@ -181,6 +183,7 @@
     .hero { padding: 2.5rem 0 3rem; }
     .hero h1 { white-space: normal; }
     .scene pre { font-size: 7px; line-height: 7px; height: 182px; }
+    .scene #cap-desc { height: 4.8em; }
     .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
     .projects-grid { grid-template-columns: 1fr; }
     .editor { font-size: 0.72rem; }
@@ -1104,7 +1107,7 @@ const SCENES = [
   { make: camScene, link: 'ascii-cam.html', title: 'ASCII Cam',
     desc: 'Turns your webcam into live ASCII art, right in the browser.' },
   { make: replayScene, link: 'https://tylerthompson17.github.io/tylernfl/replays/2017_MIN_2018011401_4497/?intro=retro', title: 'Tyler NFL Retro Replay',
-    desc: 'Famous NFL plays redrawn as pixel art from player tracking data. This one is the Minneapolis Miracle.',
+    desc: 'Famous NFL plays redrawn as pixel art from tracking data, like the Minneapolis Miracle.',
     retro: { title: 'Retro Replay', sub: 'NO at MIN 2017' } },
 ];
 
